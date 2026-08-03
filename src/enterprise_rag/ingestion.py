@@ -1,8 +1,6 @@
-from config import CHROMA_HUGGINGFACE_API_KEY  
+from config import EMBEDDING_MODEL
 
 from pathlib import Path
-
-import chromadb
 
 from langchain_community.document_loaders.text import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -45,8 +43,8 @@ class KnowledgeBaseBuilder:
         chunks =  splitter.split_documents(docs)
         return chunks
 
-    def _embed_and_store(self, chunks: list[Document]): 
-        embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    def _embed_and_store(self, chunks: list[Document]) -> None: 
+        embedder = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
         chorma_db = Chroma.from_documents(
             documents=chunks,
             embedding=embedder,
@@ -54,7 +52,7 @@ class KnowledgeBaseBuilder:
             persist_directory=self.db_path
         )
         
-    def ingest(self, path: Union[str, Path]):
+    def ingest(self, path: Union[str, Path]) -> None:
         """Handle the whole processing from raw text to vector DB storage. """
         load_out = self._load(path)
         chunk_out = self._chunk(load_out)
