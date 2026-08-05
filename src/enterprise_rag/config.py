@@ -1,20 +1,25 @@
 from pathlib import Path
 
-import os
-from dotenv import load_dotenv # not used for now
-
 ROOT = Path(__file__).resolve().parent
-CHROMA_DB_PATH = ROOT / "chroma_db"
-COLLECTION_NAME = "policies"
 
+# Qdrant
+QDRANT_URL = "http://localhost:6333"
+COLLECTION_NAME = "war"
+DENSE_MODEL = "BAAI/bge-small-en-v1.5"
+SPARSE_MODEL = "prithivida/Splade_PP_en_v1"
+VECTOR_SIZE = 384
+
+# Retrival
+CACHE_DIR = ROOT / "rerank_models"
+CROSS_ENCORDER_MODEL_NAME = "ms-marco-MiniLM-L-12-v2"
+DEFUALT_PREFETCH_LIMIT = 15
+DEFAULT_RRF_LIMIT = 10
+DEFAULT_TOP_K = 5
+
+# Generation
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 OLLAMA_LLM_NAME = "qwen2.5:1.5b"
+SYSTEM_PROMPT = "You're a useful assistant. Use ONLY the follwoing context to answer.\n\n\
+Context:\n{context}"
 
-K_CHUNKS = 3
-SYSTEM_PROMPT = "Sei un assistente utile. Usa SOLO il seguente contesto per rispondere.\n\n\
-Contesto:\n{context}"
 
-# TODO: controllare se questo flag ha senso di esistere, se magari il 
-# ChatOllama gestisce automaticamente la connessione con Docker oppure va
-# scritto diversamente e allora va splittata l'interfaccia LOCAL or not
-LOCAL = True

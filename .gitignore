@@ -1,0 +1,14 @@
+# environment 
+.vscode/ 
+.venv/ 
+.env
+src/enterprise_rag/chroma_db/
+src/enterprise_rag/__pycache__/
+src/enterprise_rag/raw_data/
+
+# obsolete files
+test.py
+ingestion.py
+
+# personal tracking 
+Journal.md
