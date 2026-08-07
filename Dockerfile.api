@@ -1,0 +1,45 @@
+# Using pytorch/cuda image helps with cuda driver 
+FROM pytorch/pytorch:2.13.0-cuda13.2-cudnn9-runtime
+
+# Pulling uv instead of pip as package manager
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# cd like
+WORKDIR /app
+
+# Optimizations (from uv Astral docs): 
+ENV UV_COMPILE_BYTECODE=1 
+ENV UV_LINK_MODE=copy 
+
+# Dendence info (readme is to comply with the .toml)
+COPY pyproject.toml uv.lock README.md ./
+
+# Instaling dependences
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
+
+# Application files
+COPY    src/enterprise_rag/__init__.py \
+        src/enterprise_rag/config.py \
+        src/enterprise_rag/pydantic_models.py \
+        src/enterprise_rag/api.py \
+        src/enterprise_rag/interlocutor.py \
+        src/enterprise_rag/qdrant_ingestion.py \
+        src/enterprise_rag/retriever.py \ 
+        /app/src/enterprise_rag/
+
+# Sync the project
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
+
+# Expose port for FastAPI (the same specified in the docker compose)
+EXPOSE 8000
+
+# cd like: this allows to use local imports
+WORKDIR /app/src/enterprise_rag
+
+# Run the command to start the server 
+CMD ["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+

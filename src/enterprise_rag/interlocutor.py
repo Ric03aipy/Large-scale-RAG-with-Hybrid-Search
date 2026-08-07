@@ -1,37 +1,39 @@
-# interlocutor.py 
-
-from langchain_ollama import ChatOllama
-from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from config import (
+    DEFAULT_RRF_LIMIT,
+    DEFAULT_TOP_K,
+    DEFUALT_PREFETCH_LIMIT,
+    OLLAMA_LLM_NAME,
+    OLLAMA_URL,
+    SYSTEM_PROMPT,
+)
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-
-from config import SYSTEM_PROMPT,  DEFUALT_PREFETCH_LIMIT, DEFAULT_RRF_LIMIT, DEFAULT_TOP_K
-
-from retriever import Retriever, CrossEncoderReranker
+from langchain_ollama import ChatOllama
+from retriever import CrossEncoderReranker, Retriever
 
 
-class Interlocutor: 
+class Interlocutor:
     """Abstract the logic of generation in RAG."""
-    def __init__(self, model_name:str="qwen2.5:1.5b", temperature:float=0.8):
+
+    def __init__(self, model_name: str = OLLAMA_LLM_NAME, temperature: float = 0.8):
         """Define through LCEL syntax the RAG retrieval and generation passage."""
 
         # Initialize the retrieval component
         self.retriever = Retriever()
         self.reranker = CrossEncoderReranker()
 
+        print(f"Sto cercando Ollama a questo indirizzo: {OLLAMA_URL}", flush=True)
+
         # Initialize the model
         self.model = ChatOllama(
-            model=model_name,
-            temperature=temperature
+            model=model_name, temperature=temperature, base_url=OLLAMA_URL
         )
 
         # Use templating to inject the question in a structured way
-        prompt = ChatPromptTemplate.from_messages([
-                ("system", SYSTEM_PROMPT),
-                ("human", "{question}")
-        ])
+        prompt = ChatPromptTemplate.from_messages(
+            [("system", SYSTEM_PROMPT), ("human", "{question}")]
+        )
 
         # Convert the complex LLM answer into clean string
         parser = StrOutputParser()
@@ -39,16 +41,16 @@ class Interlocutor:
         # Pipe "|" syntax works as in Bash: output of left operand is input of the right one
         self.chain = (
             {
-                "context": self._get_custom_context,    # any Python function is ok provided that "{context}" is a string    
-                "question": RunnablePassthrough()
-            }               # context is retrieved, question pass unchanges
-            | prompt        # context and question are formatted in the template prompt
-            | self.model    # prompt -> model -> LLM response (containing the answer)
-            | parser        # ---> clean answer
+                "context": self._get_custom_context,  # any Python function is ok provided that "{context}" is a string
+                "question": RunnablePassthrough(),
+            }  # context is retrieved, question pass unchanges
+            | prompt  # context and question are formatted in the template prompt
+            | self.model  # prompt -> model -> LLM response (containing the answer)
+            | parser  # ---> clean answer
         )
 
-    def _get_custom_context(self, user_input:dict) -> str:
-        """Bridge between the underlying custom context retrieval and LC context (pure string).""" 
+    def _get_custom_context(self, user_input: dict) -> str:
+        """Bridge between the underlying custom context retrieval and LC context (pure string)."""
 
         # unpacking user/UI parameters
         query = user_input["query"]
@@ -63,11 +65,9 @@ class Interlocutor:
         # building custom context
         context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
         return context
-    
-    def ask(self, user_input:dict) -> str:
+
+    def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)
 
-    def __call__(self, user_input:dict) -> str:
+    def __call__(self, user_input: dict) -> str:
         return self.ask(user_input)
-
-

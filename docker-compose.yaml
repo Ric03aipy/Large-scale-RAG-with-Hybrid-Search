@@ -1,0 +1,70 @@
+version: '3.8'
+
+services: 
+  ollama: 
+    image: ollama/ollama
+    ports: 
+      - "11434:11434"
+    volumes: 
+      - ollama:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh # needed to get the file to pull the model
+    # install ollama model
+    entrypoint: /bin/sh
+    command: ["-c", "ollama serve & sleep 5 && ollama pull qwen2.5:1.5b && tail -f /dev/null"]
+
+    # creating a tunnel to pass HW resourses (GPU) to Docker  
+    deploy:  
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all 
+              capabilities: [gpu]
+        
+  qdrant_db: 
+    image: qdrant/qdrant
+    ports: 
+      - "6333:6333" 
+      - "6334:6334"
+    volumes: 
+      - qdrant_storage:/qdrant/storage:z
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - QDRANT_URL=http://qdrant_db:6333 # connect TO
+      - OLLAMA_URL=http://ollama:11434 # connect TO 
+    volumes: 
+      - huggingface:/root/.cache/huggingface
+    depends_on:
+      - qdrant_db
+      - ollama
+
+  ui: 
+    build:
+      context: . 
+      dockerfile: Dockerfile.ui
+    ports:
+      - "7860:7860"
+    environment: 
+      - HOST_URL=api  # connect TO 
+
+volumes: # only phisical storage (up to ":")
+  ollama:
+  qdrant_storage:
+  huggingface:
+
+
+
+# applicazione testata
+# how to use
+# [INIZIO]
+# cd enterprise_RAG (devi vedere il docker-compose)
+# docker compose up --build
+# [FINE]
+# apri 127.0.0.1:7860
+# usa l'applicazione 

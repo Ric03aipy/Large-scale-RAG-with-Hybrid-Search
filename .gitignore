@@ -1,14 +1,23 @@
 # environment 
-.vscode/ 
+.ruff_cache/
 .venv/ 
-.env
-src/enterprise_rag/chroma_db/
-src/enterprise_rag/__pycache__/
-src/enterprise_rag/raw_data/
+.vscode/ 
 
-# obsolete files
+.env
+
+# files and folders created by the program
+src/enterprise_rag/__pycache__/
+src/enterprise_rag/chroma_db/
+src/enterprise_rag/raw_data/
+src/enterprise_rag/rerank_models/
+src/enterprise_rag/tmp/
+
+# obsolete files or files for personal testing
 test.py
-ingestion.py
+
+src/enterprise_rag/ingestion.py
+src/enterprise_rag/ingestion_script.py
+src/enterprise_rag/main.py
 
 # personal tracking 
 Journal.md
