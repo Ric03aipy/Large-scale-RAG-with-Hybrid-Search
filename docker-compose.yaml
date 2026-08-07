@@ -8,9 +8,11 @@ services:
     volumes: 
       - ollama:/root/.ollama
       - ./entrypoint.sh:/entrypoint.sh # needed to get the file to pull the model
+    environment:
+      - OLLAMA_LLM_NAME=qwen2.5:1.5b
     # install ollama model
     entrypoint: /bin/sh
-    command: ["-c", "ollama serve & sleep 5 && ollama pull qwen2.5:1.5b && tail -f /dev/null"]
+    command: ["-c", "ollama serve & sleep 5 && ollama pull $$OLLAMA_LLM_NAME && tail -f /dev/null"]
 
     # creating a tunnel to pass HW resourses (GPU) to Docker  
     deploy:  
@@ -60,11 +62,11 @@ volumes: # only phisical storage (up to ":")
 
 
 
-# applicazione testata
-# how to use
-# [INIZIO]
-# cd enterprise_RAG (devi vedere il docker-compose)
+
+# How to use
+# [START]
+# cd enterprise_RAG (you have to see docker-compose.yaml)
 # docker compose up --build
-# [FINE]
-# apri 127.0.0.1:7860
-# usa l'applicazione 
+# [END]
+# connect to 127.0.0.1:7860
+

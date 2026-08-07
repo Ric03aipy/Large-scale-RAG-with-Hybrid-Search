@@ -20,7 +20,7 @@ DEFAULT_TOP_K = 5
 
 # Generation
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-OLLAMA_LLM_NAME = "qwen2.5:1.5b"
+OLLAMA_LLM_NAME = os.getenv("OLLAMA_LLM_NAME", "qwen2.5:1.5b")
 SYSTEM_PROMPT = (
     "You're a useful assistant. Use ONLY the follwoing context to answer.\n\n\
 Context:\n{context}"
