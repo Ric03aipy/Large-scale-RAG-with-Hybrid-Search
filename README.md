@@ -40,8 +40,9 @@ Ensure Docker is installed. To enable GPU acceleration for the local LLM, instal
 
 **1. Clone the repository:**
 ```bash
-git clone [https://github.com/yourusername/enterprise-rag.git](https://github.com/yourusername/enterprise-rag.git)
-cd enterprise-rag
+git clone https://github.com/Ric03aipy/Large-scale-RAG-with-Hybrid-Search.git
+
+cd Large-scale-RAG-with-Hybrid-Search/
 ```
 
 **2. Start the orchestration:**
