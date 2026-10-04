@@ -44,7 +44,7 @@ def ingest_file(file_obj: Any, chunk_size: int, chunk_overlap: int) -> str:
         return f"An error occured:\n{e!s}"
 
 
-def send_query(input_text: str, prefetch_limit: int, rrf_limit: int, top_k: int):
+def send_query(input_text: str, prefetch_limit: int, rrf_limit: int, top_k: int, mode:str):
     """Receive an LLM-powered answer to a question about the ingested files."""
 
     if not input_text:
@@ -55,6 +55,7 @@ def send_query(input_text: str, prefetch_limit: int, rrf_limit: int, top_k: int)
             "prefetch_limit": prefetch_limit,
             "rrf_limit": rrf_limit,
             "top_k": top_k,
+            "mode": mode
         }
         response = requests.post(
             FASTAPI_URL + "/ask", json=user_input
@@ -92,6 +93,16 @@ def main():
             prefetch_limit = gr.Slider(minimum=5, maximum=50, value=15)
             rrf_limit = gr.Slider(minimum=5, maximum=50, value=10)
             top_k = gr.Slider(minimum=1, maximum=10, value=5)
+            mode = gr.Radio(
+                choices=[
+                    "dense", 
+                    "sparse", 
+                    "hybrid", 
+                    "hybrid_rerank"
+                ],
+                label="Select method for retrieval",
+                value="hybrid_rerank" # Default
+            )
         with gr.Row():
             input_text = gr.TextArea("Write here your prompt...")
             answer_text = gr.TextArea(
@@ -100,7 +111,7 @@ def main():
         ask_btn = gr.Button("Retrieve")
         ask_btn.click(
             fn=send_query,
-            inputs=[input_text, prefetch_limit, rrf_limit, top_k],
+            inputs=[input_text, prefetch_limit, rrf_limit, top_k, mode],
             outputs=answer_text,
         )
 

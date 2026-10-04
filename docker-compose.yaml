@@ -34,9 +34,10 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - "8000:8000"
-    environment:
+    environment: # no [""] in names, otherwise they are interpreted as characters as well
       - QDRANT_URL=http://qdrant_db:6333 # connect TO
       - OLLAMA_URL=http://ollama:11434 # connect TO 
+      - COLLECTION_NAME=peps_eval
     volumes: 
       - huggingface:/root/.cache/huggingface
     depends_on:

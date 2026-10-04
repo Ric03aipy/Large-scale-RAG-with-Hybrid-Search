@@ -1,3 +1,5 @@
+# Qdrant tutorial & Docs: https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/
+
 import uuid
 from pathlib import Path
 
@@ -77,9 +79,15 @@ class HybridKnowledgeBuilder:
 
         for idx, item in enumerate(chunk_out):
             passage = item.page_content
+            
+            # The database must to be idempotent: if you insert twice the same document, the db doesn't create 2 copies but updates the first with the second
+            # A point in the vector db has to be defined by not only source and start index, but also by chunk size and overlap features so that if these change
+            # but source and start_index by chance don't then there are no weird updates; a different object is created instead.     
+            config_str = f"{item.metadata['source']}_{item.metadata['start_index']}_{self.chunk_size}_{self.chunk_overlap}"
 
             point = PointStruct(
-                id=uuid.uuid4().hex,
+                # uuid5 is deterministic | uui4 is stochastic -- for idempotence determinism is the only way
+                id=uuid.uuid5(uuid.NAMESPACE_DNS, config_str).hex,
                 # intstead of passing a simple string I can pass a dictionary --> transform a LC Document into a dictionary
                 payload={"page_content": passage, "metadata": item.metadata},
                 vector={
@@ -94,3 +102,5 @@ class HybridKnowledgeBuilder:
         self.client.upload_points(
             collection_name=self.collection_name, points=points, batch_size=8
         )
+
+        print(f"{len(chunk_out)} elements ingested.")

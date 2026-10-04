@@ -1,3 +1,5 @@
+# Qdrant tutorial & Docs: https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/ 
+ 
 from typing import Any
 
 from config import (
@@ -15,6 +17,7 @@ from flashrank import Ranker, RerankRequest
 from qdrant_client import QdrantClient
 from qdrant_client.models import Document as QDocument
 from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
+from pydantic_models import QueryModeEnum
 
 
 class CrossEncoderReranker:
@@ -55,26 +58,47 @@ class Retriever:
     def retrieve(
         self,
         query: str,
+        mode: QueryModeEnum,
         prefetch_limit: int = DEFAULT_PREFETCH_LIMIT,
         rrf_limit: int = DEFAULT_RRF_LIMIT,
     ) -> QueryResponse:
         """Retrieve points by cosine similarity with the query."""
-        results = self.client.query_points(
-            collection_name=self.collection_name,
-            prefetch=[
-                Prefetch(
+        match mode: 
+            case QueryModeEnum.dense:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.dense_model),
                     using="dense_vector",
-                    limit=prefetch_limit,
-                ),
-                Prefetch(
+                    limit=rrf_limit,
+                    with_payload=True
+                )
+            case QueryModeEnum.sparse:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.sparse_model),
                     using="bm25_sparse_vector",
-                    limit=prefetch_limit,
-                ),
-            ],  # score here is COSINE similarity
-            query=FusionQuery(fusion=Fusion.RRF),  # score here is ranking
-            limit=rrf_limit,
-            with_payload=True,
-        )
+                    limit=rrf_limit,
+                    with_payload=True
+                )
+            case QueryModeEnum.hybrid | QueryModeEnum.hybrid_rerank:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
+                    prefetch=[
+                        Prefetch(
+                            query=QDocument(text=query, model=self.dense_model),
+                            using="dense_vector",
+                            limit=prefetch_limit,
+                        ),
+                        Prefetch(
+                            query=QDocument(text=query, model=self.sparse_model),
+                            using="bm25_sparse_vector",
+                            limit=prefetch_limit,
+                        ),
+                    ],  # score here is COSINE similarity
+                    query=FusionQuery(fusion=Fusion.RRF),  # score here is ranking
+                    limit=rrf_limit,
+                    with_payload=True,
+                )
+            case _:
+                raise Exception("What has the user done with the drop menu?")
         return results

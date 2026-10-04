@@ -11,6 +11,7 @@ from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama
 from retriever import CrossEncoderReranker, Retriever
+from pydantic_models import QueryModeEnum
 
 
 class Interlocutor:
@@ -50,19 +51,22 @@ class Interlocutor:
     def _get_custom_context(self, user_input: dict) -> str:
         """Bridge between the underlying custom context retrieval and LC context (pure string)."""
 
-        # unpacking user/UI parameters
+        # Unpacking user/UI parameters
         query = user_input["query"]
         prefetch_limit = user_input.get("prefetch_limit", DEFAULT_PREFETCH_LIMIT)
         rrf_limit = user_input.get("rrf_limit", DEFAULT_RRF_LIMIT)
         top_k = user_input.get("top_k", DEFAULT_TOP_K)
 
-        # information retrieval
-        retriever_res = self.retriever.retrieve(query, prefetch_limit, rrf_limit)
-        rerank_res = self.reranker.rerank(query, retriever_res, top_k)
+        # Information retrieval
+        retriever_res = self.retriever.retrieve(query, user_input['mode'], prefetch_limit, rrf_limit)
 
-        # building custom context
-        context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
-        return context
+        # Apply rerank only if required for hybrid retrival
+        if user_input['mode'] == QueryModeEnum.hybrid_rerank:
+            rerank_res = self.reranker.rerank(query, retriever_res, top_k)
+            # Building custom context
+            context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
+            return context
+        return "\n\n---\n\n".join([point.payload['page_content'] for point in retriever_res.points])
 
     def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)
