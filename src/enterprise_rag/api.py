@@ -61,7 +61,7 @@ def ingest(
     except Exception:
         raise HTTPException(
             status_code=500,
-            detail="Something went wrong with injection. Check connection. Try later.",
+            detail="Something went wrong with ingestion. Check connection. Try later.",
         )
     finally:
         full_path.unlink(missing_ok=True)

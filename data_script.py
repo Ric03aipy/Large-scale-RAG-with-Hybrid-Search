@@ -9,7 +9,8 @@ PEPS_FOLDER = ROOT.parent / "peps/peps"
 # Reproducibility
 random.seed(42)
 
-FILES = list(PEPS_FOLDER.glob("pep-*.rst"))
+FILES = sorted(list(PEPS_FOLDER.glob("pep-*.rst")))
 N_SAMPLES = 100
 
+if not DATA_FOLDER.exists(): Path.mkdir(DATA_FOLDER, exist_ok=True)
 for file in random.sample(FILES, N_SAMPLES): shutil.copy2(file, DATA_FOLDER)

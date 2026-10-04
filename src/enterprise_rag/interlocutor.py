@@ -66,7 +66,7 @@ class Interlocutor:
             # Building custom context
             context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
             return context
-        return "\n\n---\n\n".join([point.payload['page_content'] for point in retriever_res.points])
+        return "\n\n---\n\n".join([point.payload['page_content'] for point in sorted(retriever_res.points, key=lambda x: -x.score)[:top_k]])
 
     def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)

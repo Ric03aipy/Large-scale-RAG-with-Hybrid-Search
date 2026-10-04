@@ -3,7 +3,7 @@
 import uuid
 from pathlib import Path
 
-from config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL, SPARSE_MODEL, VECTOR_SIZE
+from config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL, SPARSE_MODEL, VECTOR_SIZE, MY_APP_NAMESPACE
 from langchain_community.document_loaders.text import TextLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -87,7 +87,7 @@ class HybridKnowledgeBuilder:
 
             point = PointStruct(
                 # uuid5 is deterministic | uui4 is stochastic -- for idempotence determinism is the only way
-                id=uuid.uuid5(uuid.NAMESPACE_DNS, config_str).hex,
+                id=uuid.uuid5(MY_APP_NAMESPACE, config_str).hex,
                 # intstead of passing a simple string I can pass a dictionary --> transform a LC Document into a dictionary
                 payload={"page_content": passage, "metadata": item.metadata},
                 vector={
