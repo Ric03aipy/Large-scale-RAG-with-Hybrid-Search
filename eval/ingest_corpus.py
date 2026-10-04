@@ -1,8 +1,4 @@
 from pathlib import Path
-import sys
-# sys.path.append(Path(__file__).resolve().parent)
-# sys.path.append(Path(__file__).resolve().parent.parent)
-
 
 from qdrant_client import QdrantClient
 from enterprise_rag.config import QDRANT_URL, COLLECTION_NAME, DENSE_MODEL
@@ -17,18 +13,15 @@ TEST_CHUNK_OVERLAP = 50
 
 if __name__ == "__main__":
 
-    current_path = Path(__file__).resolve().parent
-
     # Remove what's old for test
     client = QdrantClient(url=QDRANT_URL)
     if client.collection_exists(COLLECTION_NAME): client.delete_collection(COLLECTION_NAME)
-    del client
 
     # Create the Builder 
     hkb = HybridKnowledgeBuilder(TEST_CHUNK_SIZE, TEST_CHUNK_OVERLAP)
 
     # Fake interaction to ensure everything has been initialized and loaded
-    fake_res = hkb.client.query_points(
+    hkb.client.query_points(
         collection_name=hkb.collection_name,
         query=QDocument(text="What is PEP about?", model=DENSE_MODEL),
         using="dense_vector",
@@ -40,7 +33,6 @@ if __name__ == "__main__":
     start = time.perf_counter()
     for file_path in files: 
         hkb.ingest(file_path)
-        # if time.perf_counter() - start > 180: break 
     end = time.perf_counter()
     seconds = end - start
     print(f"Ingestion completed in {seconds} sec - {seconds / 60:.2f} min")
