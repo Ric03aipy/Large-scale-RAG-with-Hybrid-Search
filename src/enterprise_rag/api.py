@@ -2,14 +2,14 @@ import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from config import ROOT
+from enterprise_rag.config import ROOT
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from interlocutor import Interlocutor
-from pydantic_models import QueryRequest
-from qdrant_ingestion import HybridKnowledgeBuilder
+from enterprise_rag.interlocutor import Interlocutor
+from enterprise_rag.pydantic_models import QueryRequest
+from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
 
 
-# The lifespan handles the whole cylce of life of the FastAPI app
+# The lifespan handles the whole cycle of life of the FastAPI app
 @asynccontextmanager
 async def lifespan_func(app: FastAPI):
 

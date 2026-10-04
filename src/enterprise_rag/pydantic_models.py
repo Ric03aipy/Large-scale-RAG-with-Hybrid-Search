@@ -1,4 +1,4 @@
-from config import DEFAULT_RRF_LIMIT, DEFAULT_TOP_K, DEFAULT_PREFETCH_LIMIT
+from enterprise_rag.config import DEFAULT_RRF_LIMIT, DEFAULT_TOP_K, DEFAULT_PREFETCH_LIMIT
 from pydantic import BaseModel
 from enum import Enum
 

@@ -1,4 +1,4 @@
-from config import (
+from enterprise_rag.config import (
     DEFAULT_RRF_LIMIT,
     DEFAULT_TOP_K,
     DEFAULT_PREFETCH_LIMIT,
@@ -10,8 +10,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama
-from retriever import CrossEncoderReranker, Retriever
-from pydantic_models import QueryModeEnum
+from enterprise_rag.retriever import CrossEncoderReranker, Retriever
+from enterprise_rag.pydantic_models import QueryModeEnum
 
 
 class Interlocutor:
@@ -60,13 +60,17 @@ class Interlocutor:
         # Information retrieval
         retriever_res = self.retriever.retrieve(query, user_input['mode'], prefetch_limit, rrf_limit)
 
-        # Apply rerank only if required for hybrid retrival
+        # Apply rerank only if required for hybrid retrieval
         if user_input['mode'] == QueryModeEnum.hybrid_rerank:
             rerank_res = self.reranker.rerank(query, retriever_res, top_k)
             # Building custom context
-            context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
-            return context
-        return "\n\n---\n\n".join([point.payload['page_content'] for point in sorted(retriever_res.points, key=lambda x: -x.score)[:top_k]])
+            context = [r["text"] for r in rerank_res]
+        else: 
+            context = [point.payload['page_content'] for point in retriever_res.points[:top_k]]
+
+        return "\n\n---\n\n".join(context)
+
+
 
     def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)

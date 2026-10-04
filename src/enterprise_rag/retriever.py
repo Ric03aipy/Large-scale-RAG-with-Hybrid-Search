@@ -2,7 +2,7 @@
  
 from typing import Any
 
-from config import (
+from enterprise_rag.config import (
     CACHE_DIR,
     COLLECTION_NAME,
     CROSS_ENCODER_MODEL_NAME,
@@ -17,7 +17,7 @@ from flashrank import Ranker, RerankRequest
 from qdrant_client import QdrantClient
 from qdrant_client.models import Document as QDocument
 from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
-from pydantic_models import QueryModeEnum
+from enterprise_rag.pydantic_models import QueryModeEnum
 
 
 class CrossEncoderReranker:
@@ -69,7 +69,7 @@ class Retriever:
                     collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.dense_model),
                     using="dense_vector",
-                    limit=rrf_limit,
+                    limit=rrf_limit, # rrf_limit for coeherent comparison with methods with rrf
                     with_payload=True
                 )
             case QueryModeEnum.sparse:

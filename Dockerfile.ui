@@ -30,8 +30,5 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Expose port for gradio (the same specified in the docker compose)
 EXPOSE 7860 
 
-# cd like: this allows to use local imports
-WORKDIR /app/src/enterprise_rag
-
 # Run the UI 
-CMD ["uv", "run", "python", "ui.py"]
+CMD ["uv", "run", "-m", "enterprise_rag.ui"]

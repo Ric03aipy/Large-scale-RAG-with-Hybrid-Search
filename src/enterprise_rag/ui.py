@@ -2,7 +2,7 @@ from typing import Any
 
 import gradio as gr
 import requests
-from connection_config import HOST_URL, UVICORN_PORT
+from enterprise_rag.connection_config import HOST_URL, UVICORN_PORT
 
 FASTAPI_URL = f"http://{HOST_URL}:{UVICORN_PORT}"
 
@@ -31,9 +31,9 @@ def ingest_file(file_obj: Any, chunk_size: int, chunk_overlap: int) -> str:
                 data=payload,
                 files=files,
             )
-            # ARGS: data --> form, files --> mutilpart (files), json --> pydantic objects
+            # ARGS: data --> form, files --> multipart (files), json --> pydantic objects
 
-        # handle reponse status
+        # handle response status
         if response.status_code == 200:
             data = response.json()
             # use response.get as for dictionaries to grab the field
@@ -41,7 +41,7 @@ def ingest_file(file_obj: Any, chunk_size: int, chunk_overlap: int) -> str:
         else:
             return f"Server Error ({response.status_code}): {response.text}"
     except Exception as e:
-        return f"An error occured:\n{e!s}"
+        return f"An error occurred:\n{e!s}"
 
 
 def send_query(input_text: str, prefetch_limit: int, rrf_limit: int, top_k: int, mode:str):
@@ -68,7 +68,7 @@ def send_query(input_text: str, prefetch_limit: int, rrf_limit: int, top_k: int,
             return f"Server Error ({response.status_code}): {response.text}"
 
     except Exception as e:
-        return f"An error occured:\n{e!s}"
+        return f"An error occurred:\n{e!s}"
 
 # A simple Gradio UI 
 def main():

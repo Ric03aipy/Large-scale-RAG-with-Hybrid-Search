@@ -3,7 +3,7 @@
 import uuid
 from pathlib import Path
 
-from config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL, SPARSE_MODEL, VECTOR_SIZE, MY_APP_NAMESPACE
+from enterprise_rag.config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL, SPARSE_MODEL, VECTOR_SIZE, MY_APP_NAMESPACE
 from langchain_community.document_loaders.text import TextLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -21,7 +21,7 @@ from qdrant_client.models import Document as QDocument
 
 class HybridKnowledgeBuilder:
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
-        """Initilize the Client to the Qdrant server."""
+        """Initialize the Client to the Qdrant server."""
         self.client = QdrantClient(url=QDRANT_URL)
         self.dense_embedding = DENSE_MODEL
         self.sparse_embedding = SPARSE_MODEL
@@ -88,7 +88,7 @@ class HybridKnowledgeBuilder:
             point = PointStruct(
                 # uuid5 is deterministic | uui4 is stochastic -- for idempotence determinism is the only way
                 id=uuid.uuid5(MY_APP_NAMESPACE, config_str).hex,
-                # intstead of passing a simple string I can pass a dictionary --> transform a LC Document into a dictionary
+                # instead of passing a simple string I can pass a dictionary --> transform a LC Document into a dictionary
                 payload={"page_content": passage, "metadata": item.metadata},
                 vector={
                     "dense_vector": QDocument(text=passage, model=self.dense_embedding),
