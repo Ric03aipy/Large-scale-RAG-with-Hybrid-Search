@@ -1,10 +1,10 @@
-from config import DEFAULT_RRF_LIMIT, DEFAULT_TOP_K, DEFUALT_PREFETCH_LIMIT
+from config import DEFAULT_RRF_LIMIT, DEFAULT_TOP_K, DEFAULT_PREFETCH_LIMIT
 from pydantic import BaseModel
 
 
 class QueryRequest(BaseModel):
     query: str
-    prefetch_limit: int = DEFUALT_PREFETCH_LIMIT
+    prefetch_limit: int = DEFAULT_PREFETCH_LIMIT
     rrf_limit: int = DEFAULT_RRF_LIMIT
     top_k: int = DEFAULT_TOP_K
 

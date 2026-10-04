@@ -3,10 +3,10 @@ from typing import Any
 from config import (
     CACHE_DIR,
     COLLECTION_NAME,
-    CROSS_ENCORDER_MODEL_NAME,
+    CROSS_ENCODER_MODEL_NAME,
     DEFAULT_RRF_LIMIT,
     DEFAULT_TOP_K,
-    DEFUALT_PREFETCH_LIMIT,
+    DEFAULT_PREFETCH_LIMIT,
     DENSE_MODEL,
     QDRANT_URL,
     SPARSE_MODEL,
@@ -20,7 +20,7 @@ from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
 class CrossEncoderReranker:
     def __init__(self):
         """Initialize the ranker. The cache dir specified is the root. You will find at cache_dir + 'rerank_models'."""
-        self.ranker = Ranker(model_name=CROSS_ENCORDER_MODEL_NAME, cache_dir=CACHE_DIR)
+        self.ranker = Ranker(model_name=CROSS_ENCODER_MODEL_NAME, cache_dir=CACHE_DIR)
 
     def rerank(
         self, query: str, results: QueryResponse, top_k: int = DEFAULT_TOP_K
@@ -55,7 +55,7 @@ class Retriever:
     def retrieve(
         self,
         query: str,
-        prefetch_limit: int = DEFUALT_PREFETCH_LIMIT,
+        prefetch_limit: int = DEFAULT_PREFETCH_LIMIT,
         rrf_limit: int = DEFAULT_RRF_LIMIT,
     ) -> QueryResponse:
         """Retrieve points by cosine similarity with the query."""

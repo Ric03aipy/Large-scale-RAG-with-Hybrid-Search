@@ -1,7 +1,7 @@
 from config import (
     DEFAULT_RRF_LIMIT,
     DEFAULT_TOP_K,
-    DEFUALT_PREFETCH_LIMIT,
+    DEFAULT_PREFETCH_LIMIT,
     OLLAMA_LLM_NAME,
     OLLAMA_URL,
     SYSTEM_PROMPT,
@@ -16,14 +16,12 @@ from retriever import CrossEncoderReranker, Retriever
 class Interlocutor:
     """Abstract the logic of generation in RAG."""
 
-    def __init__(self, model_name: str = OLLAMA_LLM_NAME, temperature: float = 0.8):
+    def __init__(self, model_name: str = OLLAMA_LLM_NAME, temperature: float = 0.2):
         """Define through LCEL syntax the RAG retrieval and generation passage."""
 
         # Initialize the retrieval component
         self.retriever = Retriever()
         self.reranker = CrossEncoderReranker()
-
-        print(f"Sto cercando Ollama a questo indirizzo: {OLLAMA_URL}", flush=True)
 
         # Initialize the model
         self.model = ChatOllama(
@@ -54,7 +52,7 @@ class Interlocutor:
 
         # unpacking user/UI parameters
         query = user_input["query"]
-        prefetch_limit = user_input.get("prefetch_limit", DEFUALT_PREFETCH_LIMIT)
+        prefetch_limit = user_input.get("prefetch_limit", DEFAULT_PREFETCH_LIMIT)
         rrf_limit = user_input.get("rrf_limit", DEFAULT_RRF_LIMIT)
         top_k = user_input.get("top_k", DEFAULT_TOP_K)
 
