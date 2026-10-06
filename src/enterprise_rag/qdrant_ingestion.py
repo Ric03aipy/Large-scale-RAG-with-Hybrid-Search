@@ -3,7 +3,6 @@
 import uuid
 from pathlib import Path
 
-from enterprise_rag.config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL, SPARSE_MODEL, VECTOR_SIZE, MY_APP_NAMESPACE
 from langchain_community.document_loaders.text import TextLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -17,6 +16,14 @@ from qdrant_client.models import (
 )
 from qdrant_client.models import Document as QDocument
 
+from enterprise_rag.config import (
+    COLLECTION_NAME,
+    DENSE_MODEL,
+    MY_APP_NAMESPACE,
+    QDRANT_URL,
+    SPARSE_MODEL,
+    VECTOR_SIZE,
+)
 
 
 class HybridKnowledgeBuilder:
@@ -69,8 +76,8 @@ class HybridKnowledgeBuilder:
         chunks = splitter.split_documents(docs)
         return chunks
 
-    def ingest(self, txt_path: str | Path) -> None:
-        """Store the file in the vector DB."""
+    def ingest(self, txt_path: str | Path) -> int:
+        """Store the file in the vector DB. Returns the number of ingested chunks."""
         load_out = self._load(txt_path)
         chunk_out = self._chunk(load_out)
 
@@ -79,10 +86,10 @@ class HybridKnowledgeBuilder:
 
         for idx, item in enumerate(chunk_out):
             passage = item.page_content
-            
+
             # The database must to be idempotent: if you insert twice the same document, the db doesn't create 2 copies but updates the first with the second
             # A point in the vector db has to be defined by not only source and start index, but also by chunk size and overlap features so that if these change
-            # but source and start_index by chance don't then there are no weird updates; a different object is created instead.     
+            # but source and start_index by chance don't then there are no weird updates; a different object is created instead.
             config_str = f"{item.metadata['source']}_{item.metadata['start_index']}_{self.chunk_size}_{self.chunk_overlap}"
 
             point = PointStruct(
@@ -103,4 +110,4 @@ class HybridKnowledgeBuilder:
             collection_name=self.collection_name, points=points, batch_size=8
         )
 
-        print(f"{len(chunk_out)} elements ingested.")
+        return len(chunk_out)

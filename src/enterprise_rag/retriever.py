@@ -1,22 +1,23 @@
-# Qdrant tutorial & Docs: https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/ 
- 
+# Qdrant tutorial & Docs: https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/
+
 from typing import Any
+
+from flashrank import Ranker, RerankRequest
+from qdrant_client import QdrantClient
+from qdrant_client.models import Document as QDocument
+from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
 
 from enterprise_rag.config import (
     CACHE_DIR,
     COLLECTION_NAME,
     CROSS_ENCODER_MODEL_NAME,
+    DEFAULT_PREFETCH_LIMIT,
     DEFAULT_RRF_LIMIT,
     DEFAULT_TOP_K,
-    DEFAULT_PREFETCH_LIMIT,
     DENSE_MODEL,
     QDRANT_URL,
     SPARSE_MODEL,
 )
-from flashrank import Ranker, RerankRequest
-from qdrant_client import QdrantClient
-from qdrant_client.models import Document as QDocument
-from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
 from enterprise_rag.pydantic_models import QueryModeEnum
 
 
@@ -63,14 +64,14 @@ class Retriever:
         rrf_limit: int = DEFAULT_RRF_LIMIT,
     ) -> QueryResponse:
         """Retrieve points by cosine similarity with the query."""
-        match mode: 
+        match mode:
             case QueryModeEnum.dense:
                 results = self.client.query_points(
                     collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.dense_model),
                     using="dense_vector",
-                    limit=rrf_limit, # rrf_limit for coeherent comparison with methods with rrf
-                    with_payload=True
+                    limit=rrf_limit,  # rrf_limit for coeherent comparison with methods with rrf
+                    with_payload=True,
                 )
             case QueryModeEnum.sparse:
                 results = self.client.query_points(
@@ -78,7 +79,7 @@ class Retriever:
                     query=QDocument(text=query, model=self.sparse_model),
                     using="bm25_sparse_vector",
                     limit=rrf_limit,
-                    with_payload=True
+                    with_payload=True,
                 )
             case QueryModeEnum.hybrid | QueryModeEnum.hybrid_rerank:
                 results = self.client.query_points(

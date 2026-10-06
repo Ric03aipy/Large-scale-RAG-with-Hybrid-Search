@@ -1,23 +1,22 @@
-from pathlib import Path
+import time
 
 from qdrant_client import QdrantClient
-from enterprise_rag.config import QDRANT_URL, COLLECTION_NAME, DENSE_MODEL
-from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
-from eval.data_script import DATA_FOLDER
-import time
 from qdrant_client.models import Document as QDocument
 
-TEST_CHUNK_SIZE = 1000
-TEST_CHUNK_OVERLAP = 50
+from enterprise_rag.config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL
+from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
+from eval.data_script import DATA_FOLDER
+from eval.eval_config import TEST_CHUNK_OVERLAP, TEST_CHUNK_SIZE
+
 
 
 if __name__ == "__main__":
-
     # Remove what's old for test
     client = QdrantClient(url=QDRANT_URL)
-    if client.collection_exists(COLLECTION_NAME): client.delete_collection(COLLECTION_NAME)
+    if client.collection_exists(COLLECTION_NAME):
+        client.delete_collection(COLLECTION_NAME)
 
-    # Create the Builder 
+    # Create the Builder
     hkb = HybridKnowledgeBuilder(TEST_CHUNK_SIZE, TEST_CHUNK_OVERLAP)
 
     # Fake interaction to ensure everything has been initialized and loaded
@@ -30,11 +29,11 @@ if __name__ == "__main__":
     # Ingest all files
     files = DATA_FOLDER.glob("*.rst")
     print("Starting ingestion of knowledge base...")
+    num_chunks = 0
     start = time.perf_counter()
-    for file_path in files: 
-        hkb.ingest(file_path)
+    for file_path in files:
+        num_chunks += hkb.ingest(file_path)
     end = time.perf_counter()
     seconds = end - start
-    print(f"Ingestion completed in {seconds} sec - {seconds / 60:.2f} min")
-
-
+    print(f"Ingestion of {num_chunks} chunks completed in {seconds:.2f} sec - {seconds / 60:.2f} min")
+    print(f"Ingestion speed: {num_chunks / seconds :.2f} chunk/s")

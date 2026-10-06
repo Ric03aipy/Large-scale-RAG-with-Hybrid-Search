@@ -1,0 +1,1720 @@
+{source:pep-0646, id:1bc2c98d-d5a2-54ad-a820-d08636d206f6, text:Unpacking Tuple Types
+---------------------
+
+We mentioned that a ``TypeVarTuple`` stands for a tuple of types.
+Since we can unpack a ``TypeVarTuple``, for consistency, we also
+allow unpacking a tuple type. As we shall see, this also enables a
+number of interesting features.
+
+
+Unpacking Concrete Tuple Types
+''''''''''''''''''''''''''''''
+
+Unpacking a concrete tuple type is analogous to unpacking a tuple of
+values at runtime. ``Tuple[int, *Tuple[bool, bool], str]`` is
+equivalent to ``Tuple[int, bool, bool, str]``.
+
+Unpacking Unbounded Tuple Types
+''''''''''''''''''''''''''''''', start_index:12600}
+{source:pep-8015, id:c0627a9d-57d8-5f3b-bb50-cbf38f528406, text:PEP: 8015
+Title: Organization of the Python community
+Author: Victor Stinner
+Status: Rejected
+Type: Informational
+Topic: Governance
+Created: 04-Oct-2018
+
+Abstract
+========
+
+This PEP formalizes the current organization of the Python community and
+proposes 3 main changes:
+
+* Formalize the existing concept of "Python teams";
+* Give more autonomy to Python teams;
+* Replace the BDFL (Guido van Rossum) with a new "Python Steering
+  Committee" of 5 members which has limited roles: basically decide how
+  decisions are taken, but don't take decisions.
+
+PEPs are approved by a PEP delegate or by a vote (reserved to core
+developers, need ``>= 2/3`` majority).
+
+
+PEP Rejection
+=============
+
+:pep:`8015` was rejected `by a core developer vote
+<https://discuss.python.org/t/python-governance-vote-december-2018-results/546/>`__
+described in :pep:`8001` on Monday, December 17, 2018.
+
+:pep:`8016` and the governance model it describes were chosen instead.
+
+
+Rationale
+=========, start_index:0}
+{source:pep-8015, id:2efb90c8-e39f-594a-b5f8-334978f43ceb, text:Python Core Developers
+======================
+
+One restricted definition of a core developer is the ability to merge a
+change (anywhere in the code) and have the bug triage permission
+(on all bug tracker components).
+
+Core developers are developers who are proven to have the required skills to
+decide if a change can be approved or must be rejected, but also (and
+this is more important) what changes should not be made. Python has a
+long history, big constraints on backward compatibility, high quality
+standards (ex: changes require new tests). For these reasons, becoming
+a core can take several months or longer.
+
+Becoming a core developer means more responsibilities. For example, if a
+developer merges a change, they become responsible for regressions and
+for the maintenance of that modified code.
+
+Core developers are expected to be exemplary when it comes to the Code
+of Conduct. They are encouraged to mentor contributors., start_index:4686}
+{source:pep-8015, id:da41b2a4-5b21-50f2-ad51-86ec057f6c03, text:Community Organization
+======================
+
+Right now, there are different group of people involved in the Python
+project. The more involved you are, the more decisions power you get. It
+is important that the people acceding to the deepest group are the most
+trusted ones.
+
+This PEP formalizes the following groups:
+
+* Python Users
+* Python Contributors
+* Python Teams Members
+* Python Core Developers
+* Python Steering Committee Members
+* PSF Code of Conduct Workgroup
+
+
+Python Users
+============
+
+This is the largest group: anyone who uses Python.
+
+
+Python Contributors
+===================
+
+Once a Python user sends an email to a Python mailing list, comments on
+the Python bug tracker, proposes or reviews a Python change, they become
+a Python contributor.
+
+
+Python Teams
+============
+
+Python became too big to work as a unique team anymore, people
+naturally have grouped themselves as teams to work more closely on
+specific topics, sometimes called "Special Interest Group" (SIG)., start_index:2830}
+{source:pep-0552, id:3db1fd43-7363-53df-8493-c388ba6361e7, text:Specification
+=============
+
+The pyc header currently consists of 3 32-bit words. We will expand it to 4. The
+first word will continue to be the magic number, versioning the bytecode and pyc
+format. The second word, conceptually the new word, will be a bit field. The
+interpretation of the rest of the header and invalidation behavior of the pyc
+depends on the contents of the bit field.
+
+If the bit field is 0, the pyc is a traditional timestamp-based pyc. I.e., the
+third and forth words will be the timestamp and file size respectively, and
+invalidation will be done by comparing the metadata of the source file with that
+in the header., start_index:2300}
+{source:pep-0552, id:3db1fd43-7363-53df-8493-c388ba6361e7, text:Specification
+=============
+
+The pyc header currently consists of 3 32-bit words. We will expand it to 4. The
+first word will continue to be the magic number, versioning the bytecode and pyc
+format. The second word, conceptually the new word, will be a bit field. The
+interpretation of the rest of the header and invalidation behavior of the pyc
+depends on the contents of the bit field.
+
+If the bit field is 0, the pyc is a traditional timestamp-based pyc. I.e., the
+third and forth words will be the timestamp and file size respectively, and
+invalidation will be done by comparing the metadata of the source file with that
+in the header., start_index:2300}
+{source:pep-0820, id:22c90a17-3ec9-554b-b58d-40a8c7919f9e, text:- all type slots, except slots where this is already a runtime error
+    (``Py_tp_doc``, ``Py_tp_members``)
+  - ``Py_mod_create``
+  - ``Py_mod_abi``
+
+
+Backwards Compatibility
+=======================
+
+This PEP proposes to change API that was already released in alpha versions of
+Python 3.15.
+This will inconvenience early adopters of that API, but -- as long as the
+PEP is accepted and implemented before the first beta -- this change is within
+the letter and spirit of our backwards compatibility policy.
+
+Renumbering of slots is done in a backwards-compatible way.
+Old values continue to be accepted, and are used when compiling for
+earlier Stable ABI.
+
+Some cases that are documented as illegal will begin emitting deprecation
+warnings (see :ref:`pep820-hard-deprecations`).
+
+Otherwise, this PEP only adds and soft-deprecates APIs, which is backwards
+compatible.
+
+
+Security Implications
+=====================
+
+None known
+
+
+How to Teach This
+=================, start_index:21445}
+{source:pep-0820, id:22c90a17-3ec9-554b-b58d-40a8c7919f9e, text:- all type slots, except slots where this is already a runtime error
+    (``Py_tp_doc``, ``Py_tp_members``)
+  - ``Py_mod_create``
+  - ``Py_mod_abi``
+
+
+Backwards Compatibility
+=======================
+
+This PEP proposes to change API that was already released in alpha versions of
+Python 3.15.
+This will inconvenience early adopters of that API, but -- as long as the
+PEP is accepted and implemented before the first beta -- this change is within
+the letter and spirit of our backwards compatibility policy.
+
+Renumbering of slots is done in a backwards-compatible way.
+Old values continue to be accepted, and are used when compiling for
+earlier Stable ABI.
+
+Some cases that are documented as illegal will begin emitting deprecation
+warnings (see :ref:`pep820-hard-deprecations`).
+
+Otherwise, this PEP only adds and soft-deprecates APIs, which is backwards
+compatible.
+
+
+Security Implications
+=====================
+
+None known
+
+
+How to Teach This
+=================, start_index:21445}
+{source:pep-8011, id:19322c63-23ce-5010-a010-2fdfb85357b5, text:Only once this PEP is accepted, any active core developers (who are eligible to vote)
+can submit nomination of groups of three.
+
+Once this PEP is accepted and core devs have submitted their nominations, voting
+can begin, and the voting mechanism described in :pep:`8001` will be used.
+
+Qualities desired out of the trio:
+
+- Be a Python core developer.
+- Be a voting PSF member (one of Contributing / Manager / Fellow / Supporter). [2]_
+- Be a member of the community with good standing.
+- Adhere to The PSF's code of conduct (Be open, considerate, and respectful). [1]_
+- Be willing to accept the said roles and responsibilities.
+- Able to communicate and articulate their thoughts effectively.
+
+The following are not requirements when considering someone into the trio:
+
+- "Experience being a BDFL of something" is not a requirement.
+- "Be a genius" is not a requirement.
+
+Diversity and inclusivity
+-------------------------, start_index:6176}
+{source:pep-8011, id:8b27b93f-afbc-57ec-ac0a-913614b48d52, text:communities will look at Python and learn from us., start_index:3228}
+{source:pep-8011, id:19322c63-23ce-5010-a010-2fdfb85357b5, text:Only once this PEP is accepted, any active core developers (who are eligible to vote)
+can submit nomination of groups of three.
+
+Once this PEP is accepted and core devs have submitted their nominations, voting
+can begin, and the voting mechanism described in :pep:`8001` will be used.
+
+Qualities desired out of the trio:
+
+- Be a Python core developer.
+- Be a voting PSF member (one of Contributing / Manager / Fellow / Supporter). [2]_
+- Be a member of the community with good standing.
+- Adhere to The PSF's code of conduct (Be open, considerate, and respectful). [1]_
+- Be willing to accept the said roles and responsibilities.
+- Able to communicate and articulate their thoughts effectively.
+
+The following are not requirements when considering someone into the trio:
+
+- "Experience being a BDFL of something" is not a requirement.
+- "Be a genius" is not a requirement.
+
+Diversity and inclusivity
+-------------------------, start_index:6176}
+{source:pep-0308, id:c04537af-7b0f-527a-8f23-d0bee7c4015a, text:The out-of-order arrangement was found to be too uncomfortable
+for many of participants in the discussion; especially when
+<expression1> is long, it's easy to miss the conditional while
+skimming.
+
+---
+
+Some have suggested adding a new builtin instead of extending the
+syntax of the language.  For example::
+
+    cond(<condition>, <expression1>, <expression2>)
+
+This won't work the way a syntax extension will because both
+expression1 and expression2 must be evaluated before the function
+is called.  There's no way to short-circuit the expression
+evaluation.  It could work if 'cond' (or some other name) were
+made a keyword, but that has all the disadvantages of adding a new
+keyword, plus confusing syntax: it **looks** like a function call so
+a casual reader might expect both <expression1> and <expression2>
+to be evaluated.
+
+
+Summary of the Current State of the Discussion
+==============================================
+
+Groups are falling into one of three camps:, start_index:7448}
+{source:pep-0308, id:eb92e6ed-b2e7-57e9-a27c-fb965d040907, text:The advantages are simple visual parsing, no required parentheses,
+no change in the semantics of existing keywords, not as likely
+as the proposal to be confused with statement syntax, and does
+not further overload the colon.  The disadvantage is the
+implementation costs of introducing a new keyword.  However,
+unlike other new keywords, the word "then" seems unlikely to
+have been used as a name in existing programs.
+
+---
+
+Many C-derived languages use this syntax::
+
+    <condition> ? <expression1> : <expression2>
+
+Eric Raymond even implemented this.  The BDFL rejected this for
+several reasons: the colon already has many uses in Python (even
+though it would actually not be ambiguous, because the question
+mark requires a matching colon); for people not used to C-derived
+language, it is hard to understand.
+
+---
+
+The original version of this PEP proposed the following syntax::
+
+    <expression1> if <condition> else <expression2>, start_index:6510}
+{source:pep-0275, id:97ab9dce-903d-5b64-940b-94d564ff18cd, text:Both solutions use a dictionary lookup to find the right
+jump location, so they both share the same problem space in
+terms of requiring that both the switch variable and the
+constants need to be compatible to the dictionary implementation
+(hashable, comparable, a==b => hash(a)==hash(b)).
+
+Solution 1: Optimizing if-elif-else
+-----------------------------------
+
+Implementation:
+
+It should be possible for the compiler to detect an
+if-elif-else construct which has the following signature::
+
+    if x == 'first':...
+    elif x == 'second':...
+    else:...
+
+i.e. the left hand side always references the same variable,
+the right hand side a hashable immutable builtin type.  The
+right hand sides need not be all of the same type, but they
+should be comparable to the type of the left hand switch
+variable., start_index:2605}
+{source:pep-0205, id:07540ce2-4702-5bbf-9263-e1eb0f1f36a5, text:For each of the reference types, there is an option to add the
+reference to a queue when it is invalidated by the memory
+allocator.  The primary purpose of this facility seems to be that
+it allows larger structures to be composed to incorporate
+weak-reference semantics without having to impose substantial
+additional locking requirements.  For instance, it would not be
+difficult to use this facility to create a "weak" hash table which
+removes keys and referents when a reference is no longer used
+elsewhere.  Using weak references for the objects without some
+sort of notification queue for invalidations leads to much more
+tedious implementation of the various operations required on hash
+tables.  This can be a performance bottleneck if deallocations of
+the stored objects are infrequent., start_index:10826}
+{source:pep-0205, id:4786ce39-9cd1-50b8-81d5-4f4ac62502fa, text:Reference objects are easy to work with when some additional layer
+of object management is being added in Python; references can be
+checked for liveness explicitly, without having to invoke
+operations on the referents and catching some special exception
+raised when an invalid weak reference is used.
+
+However, a number of users favor the proxy approach simply because
+the weak reference looks so much like the original object.
+
+
+Proposed Solution
+=================
+
+Weak references should be able to point to any Python object that
+may have substantial memory size (directly or indirectly), or hold
+references to external resources (database connections, open
+files, etc.)., start_index:4835}
+{source:pep-0592, id:171478ec-ce59-5cf9-a1db-a94f2809fbd8, text:1. Yanked files are always ignored, unless they are the only file that
+   matches a version specifier that "pins" to an exact version using
+   either ``==`` (without any modifiers that make it a range, such as
+   ``.*``) or ``===``. Matching this version specifier should otherwise
+   be done as per :pep:`440` for things like local versions, zero padding,
+   etc.
+2. Yanked files are always ignored, unless they are the only file that
+   matches what a lock file (such as ``Pipfile.lock`` or ``poetry.lock``)
+   specifies to be installed. In this case, a yanked file **SHOULD** not
+   be used when creating or updating a lock file from some input file or
+   command., start_index:4510}
+{source:pep-0592, id:b62bf5d4-5cd5-57a9-803c-175893a74d31, text:One of the main scenarios where this may happen, is when dropping
+support for a particular version of Python. The ``python-requires``
+metadata allows for dropping support for a version of Python in
+a way that is not disruptive to users who are still using that
+Python. However, a common mistake is to either omit or forget to
+update that bit of metadata. When that mistake has been made, a
+project really only has three options:
+
+- Prevent that version from being installed through some mechanism
+  (currently, the only mechanism is by deleting the release entirely).
+- Re-release the version that worked as a higher version number, and
+  then re-release the version that dropped support as an even higher
+  version number with the correct metadata.
+- Do nothing, and document that people using that older Python have
+  to manually exclude that release., start_index:1639}
+{source:pep-0344, id:3a10ac64-5cb7-5bbb-85db-fba5f48e8496, text:To keep things simpler, the C API calls for setting an exception will not
+automatically set the exception's ``__context__``.  Guido van Rossum has
+expressed concerns with making such changes [8]_.
+
+As for other languages, Java and Ruby both discard the original exception when
+another exception occurs in a ``catch/rescue`` or ``finally/ensure`` clause.
+Perl 5 lacks built-in structured exception handling.  For Perl 6, RFC number
+88 [9]_ proposes an exception mechanism that implicitly retains chained
+exceptions in an array named ``@@``.  In that RFC, the most recently raised
+exception is exposed for matching, as in this PEP; also, arbitrary expressions
+(possibly involving ``@@``) can be evaluated for exception matching., start_index:4823}
+{source:pep-0420, id:9b10c2ea-df0f-5e66-95a5-edbb67302f8c, text:* "distribution" refers to separately installable sets of Python
+  modules as stored in the Python package index, and installed by
+  distutils or setuptools.
+
+* "vendor package" refers to groups of files installed by an
+  operating system's packaging mechanism (e.g. Debian or Redhat
+  packages install on Linux systems).
+
+* "regular package" refers to packages as they are implemented in
+  Python 3.2 and earlier.
+
+* "portion" refers to a set of files in a single directory (possibly
+  stored in a zip file) that contribute to a namespace package.
+
+* "legacy portion" refers to a portion that uses ``__path__``
+  manipulation in order to implement namespace packages.
+
+This PEP defines a new type of package, the "namespace package".
+
+
+Namespace packages today
+========================
+
+Python currently provides ``pkgutil.extend_path`` to denote a package
+as a namespace package.  The recommended way of using it is to put::, start_index:922}
+{source:pep-0842, id:8ff7c5ff-ec57-5f45-aa20-de2d7af58a89, text:In JavaScript, names are private by default, so the ``export`` keyword
+means "make this name public". This idea does not apply well to Python, because
+in Python, names are public (as in, importable) by default, *except* when
+``__export__`` is present in a module's namespace. So, a clearer definition
+for ``export`` in Python is "make everything else private except for this name".
+
+
+.. _pep-842-bypassing-export:
+
+Bypassing ``__export__``
+------------------------
+
+As mentioned previously, this proposal is not meant to be an ironclad
+shield around private variables.
+
+For prototyping, the simplest way to get around ``__export__`` is to simply
+delete it:
+
+.. code-block:: python
+
+   import module
+
+   del module.__export__
+   # All private variables in 'module' are now available
+
+Or, for a more granular workaround, append specific private names to ``__export__``:
+
+.. code-block:: python
+
+   import module
+
+   module.__export__.append("name_you_want"), start_index:34896}
+{source:pep-0407, id:b9b2315f-6679-58a2-b34f-75dc6e4cf6c6, text:LTS versions would get regular bugfix releases until the next LTS
+version is out.  They then would go into security fixes mode, up to a
+termination date at the release manager's discretion.
+
+Periodicity
+-----------
+
+A new feature version would be released every X months.  We
+tentatively propose X = 6 months.
+
+LTS versions would be one out of N feature versions.  We tentatively
+propose N = 4.
+
+With these figures, a new LTS version would be out every 24 months,
+and remain supported until the next LTS version 24 months later.  This
+is mildly similar to today's 18 months bugfix cycle for every feature
+version.
+
+Pre-release versions
+--------------------, start_index:1553}
+{source:pep-8103, id:6bff79c1-f581-5747-8392-3c2fcdad4e11, text:+-----------------------+----------------+
+| Candidate             | Votes Received |
++=======================+================+
+| Pablo Galindo Salgado | 61             |
++-----------------------+----------------+
+| Petr Viktorin         | 48             |
++-----------------------+----------------+
+| Thomas Wouters        | 48             |
++-----------------------+----------------+
+| Gregory P. Smith      | 44             |
++-----------------------+----------------+
+| Brett Cannon          | 42             |
++-----------------------+----------------+
+| Barry Warsaw          | 39             |
++-----------------------+----------------+
+| Victor Stinner        | 35             |
++-----------------------+----------------+
+| Mariatta              | 34             |
++-----------------------+----------------+
+| Dong-hee Na           | 26             |
++-----------------------+----------------+
+| David Mertz           | 24             |
++-----------------------+----------------+, start_index:4806}
+{source:pep-8103, id:ac7acbcd-004d-5f45-b4ee-252a19562a99, text:- `Brett Cannon <https://discuss.python.org/t/steering-council-nomination-brett-cannon-2022-term/11839>`_
+- `Mariatta <https://discuss.python.org/t/steering-council-nomination-mariatta-2022-term/11979>`_
+- `David Mertz <https://discuss.python.org/t/steering-council-nomination-david-mertz-2022-term/12000>`_
+- `Dong-hee Na <https://discuss.python.org/t/steering-council-nomination-dong-hee-na-2022-term/12001>`_
+- `Pablo Galindo Salgado <https://discuss.python.org/t/steering-council-nomination-pablo-galindo-2022-term/11947>`_
+- `Gregory P. Smith <https://discuss.python.org/t/steering-council-nomination-gregory-p-smith-2022-term/11999>`_
+- `Victor Stinner <https://discuss.python.org/t/steering-council-nomination-victor-stinner-2022-term/11981>`_
+- `Petr Viktorin <https://discuss.python.org/t/steering-council-nomination-petr-viktorin-2022-term/12003>`_
+- `Barry Warsaw <https://discuss.python.org/t/steering-council-nomination-barry-warsaw-2022-term/11911>`_, start_index:1645}
+{source:pep-0788, id:7276b999-9435-52e2-bf67-f3692de8c97e, text:/* ... */
+    }
+
+This comes with a hidden problem. If the target interpreter is finalizing, the
+current thread will hang! Or, if the target interpreter has been completely
+deleted (such as with short-lived subinterpreters), then attaching will likely
+result in a crash.
+
+There are currently a few workarounds for this:
+
+1. Leak resources to prevent the need to invoke Python.
+2. Protect against finalization using an :mod:`atexit` callback.
+
+These options generally work, but can be verbose, complex, or result in other
+issues. Ideally, interpreter finalization should not be such a footgun when
+working with Python's C API.
+
+
+Locks in native extensions can be unusable during finalization
+**************************************************************, start_index:3507}
+{source:pep-0788, id:7e05eaa8-4ba6-5b2d-a306-f7a203d93d8e, text:The author of this PEP acknowledges that subinterpreters are not
+currently a popular use-case, but believes that it would be
+difficult to design a new API that does not also improve the situtation
+for subinterpreters. Opting out of subinterpreter is support is available
+through :c:func:`PyInterpreterView_FromMain`.
+
+
+Backwards Compatibility
+=======================
+
+This PEP specifies no breaking changes.
+
+Existing code **does not** have to be rewritten to use the new APIs from
+this PEP, and all ``PyGILState`` APIs will continue to work. Use of ``PyGILState``
+APIs will not emit any form of warning during compilation or at runtime. There
+will merely not be any *new* ``PyGILState`` APIs in future versions of Python.
+
+
+Security Implications
+=====================
+
+This PEP has no known security implications.
+
+
+How to Teach This
+=================
+
+As with all C API functions, all the new APIs in this PEP will be documented
+in the C API documentation.
+
+
+Examples
+--------, start_index:18227}
+{source:pep-3109, id:47a74412-6df1-5ca5-9ede-ff8d468c7af9, text:To raise anything else is an error.
+
+There is a further, more tangible benefit to be obtained through this
+consolidation, as noted by A.M. Kuchling [#amk-line-noise]_. ::
+
+    PEP 8 doesn't express any preference between the
+    two forms of raise statements:
+    raise ValueError, 'blah'
+    raise ValueError("blah")
+
+    I like the second form better, because if the exception arguments
+    are long or include string formatting, you don't need to use line
+    continuation characters because of the containing parens.
+
+The BDFL has concurred [#guido-declaration]_ and endorsed the
+consolidation of the several ``raise`` forms.
+
+
+Grammar Changes
+===============
+
+In Python 3, the grammar for ``raise`` statements will change
+from [#grammar]_ ::
+
+    raise_stmt: 'raise' [test [',' test [',' test]]]
+
+to ::
+
+    raise_stmt: 'raise' [test]
+
+
+Changes to Builtin Types
+========================, start_index:1684}
+{source:pep-0406, id:dea415a7-26b5-516b-a24c-016e057a26f0, text:The PEP also proposes inclusion of a ``GlobalImportEngine`` subclass and a
+globally accessible instance of that class, which "writes through" to the
+process global state. This provides a backwards compatible bridge between the
+proposed encapsulated API and the legacy process global state, and allows
+straightforward support for related state updates (e.g. selectively
+invalidating path cache entries when ``sys.path`` is modified).
+
+
+PEP Withdrawal
+==============
+
+The import system has seen substantial changes since this PEP was originally
+written, as part of :pep:`420` in Python 3.3 and :pep:`451` in Python 3.4.
+
+While providing an encapsulation of the import state is still highly
+desirable, it is better tackled in a new PEP using :pep:`451` as a foundation,
+and permitting only the use of :pep:`451` compatible finders and loaders (as
+those avoid many of the issues of direct manipulation of global state
+associated with the previous loader API).
+
+
+Rationale
+=========, start_index:850}
+{source:pep-0323, id:c44eb2d7-dc24-528d-83d6-001f4f634873, text:normit = RandomIterator(random.Random().gauss, 0, 1)
+    show5(normit)
+    copit = normit.__copy__()
+    show5(normit)
+    show5(copit)
+
+which will display some output such as::
+
+    -0.536  1.936 -1.182 -1.690 -1.184
+     0.666 -0.701  1.214  0.348  1.373
+     0.666 -0.701  1.214  0.348  1.373
+
+the key point being that the second and third lines are equal, because
+the normit and copit iterators will step along the same "underlying
+sequence".  (As an aside, note that to get a copy of ``self.call.im_self``
+we must use ``copy.copy``, NOT try getting at a ``__copy__`` method directly,
+because for example instances of ``random.Random`` support copying via
+``__getstate__`` and ``__setstate__``, NOT via ``__copy__``; indeed, using
+copy.copy is the normal way to get a shallow copy of any object --
+copyable iterators are different because of the already-mentioned
+uncertainty about the result of ``copy.copy`` supporting these "copyable
+iterator" specs).
+
+
+Details
+=======, start_index:8668}
+{source:pep-0458, id:27db93ee-2ffe-5e0a-aee8-cd6685db1e48, text:What Additional Repository Files are Required on PyPI?
+------------------------------------------------------
+
+In order for package managers like pip to download and verify distributions with
+TUF, a few extra files MUST be added to PyPI. These extra repository files are
+called TUF metadata, and they contain such information as which keys can be trusted,
+the `cryptographic hashes`__ of files, signatures, metadata version numbers, and
+the date after which the metadata should be considered expired.
+
+__ https://en.wikipedia.org/wiki/Cryptographic_hash_function, start_index:17605}
+{source:pep-0261, id:6c5aeac9-7121-5a4c-8ce5-d15ed7f96ba7, text:"Space-efficient Unicode" type
+
+   Another class of solution is to use some efficient storage
+   internally but present an abstraction of wide characters to
+   the programmer. Any of these would require a much more complex
+   implementation than the accepted solution. For instance consider
+   the impact on the regular expression engine. In theory, we could
+   move to this implementation in the future without breaking Python
+   code. A future Python could "emulate" wide Python semantics on
+   narrow Python. Guido is not willing to undertake the
+   implementation right now.
+
+Two types
+
+   We could introduce a 32-bit Unicode type alongside the 16-bit
+   type. There is a lot of code that expects there to be only a
+   single Unicode type., start_index:8445}
+{source:pep-8100, id:3589f6ff-26aa-5915-902f-e6953ed90377, text:Lars Gustäbel
+    Lisa Roach
+    Łukasz Langa
+    Marc-Andre Lemburg
+    Mariatta
+    Mark Dickinson
+    Mark Hammond
+    Mark Shannon
+    Martin Panter
+    Matthias Klose
+    Meador Inge
+    Michael Hudson-Doyle
+    Nathaniel J. Smith
+    Ned Deily
+    Neil Schemenauer
+    Alyssa Coghlan
+    Pablo Galindo
+    Paul Moore
+    Petr Viktorin
+    Petri Lehtinen
+    Philip Jenvey
+    R. David Murray
+    Raymond Hettinger
+    Robert Collins
+    Ronald Oussoren
+    Sandro Tosi
+    Senthil Kumaran
+    Serhiy Storchaka
+    Sjoerd Mullender
+    Stefan Krah
+    Steve Dower
+    Steven Daprano
+    T. Wouters
+    Tal Einat
+    Terry Jan Reedy
+    Thomas Heller
+    Tim Golden
+    Tim Peters
+    Trent Nelson
+    Victor Stinner
+    Vinay Sajip
+    Walter Dörwald
+    Xiang Zhang
+    Yury Selivanov
+    Zachary Ware, start_index:7673}
+{source:pep-8100, id:b1504826-471e-5521-8e98-d14b606bb902, text:.. [1] This repository is private and accessible only to Python Core
+   Developers, administrators, and Python Software Foundation Staff as it
+   contains personal email addresses., start_index:8483}
+{source:pep-0253, id:c51f5471-0ce4-57bf-9a45-3b215557b597, text:Thus, a classic class hierarchy like this::
+
+      class B     class C:
+          ^         ^  def __getattr__(self, name): ...
+           \       /
+            \     /
+             \   /
+              \ /
+            class D
+
+will change into a diamond diagram under the new system::
+
+            object:
+              ^ ^  __getattr__()
+             /   \
+            /     \
+           /       \
+          /         \
+      class B     class C:
+          ^         ^  def __getattr__(self, name): ...
+           \       /
+            \     /
+             \   /
+              \ /
+            class D
+
+and while in the original diagram ``C.__getattr__()`` is invoked,
+under the new system with the classic lookup rule,
+``object.__getattr__()`` would be invoked!, start_index:36442}
+{source:pep-0253, id:ddba7a7e-3775-5fdc-9601-490e58f7ea49, text:The main problem with multiple inheritance from different built-in
+types stems from the fact that the C implementation of built-in
+types accesses structure members directly; the C compiler
+generates an offset relative to the object pointer and that's
+that.  For example, the list and dictionary type structures each
+declare a number of different but overlapping structure members.
+A C function accessing an object expecting a list won't work when
+passed a dictionary, and vice versa, and there's not much we could
+do about this without rewriting all code that accesses lists and
+dictionaries.  This would be too much work, so we won't do this.
+
+The problem with multiple inheritance is caused by conflicting
+structure member allocations.  Classes defined in Python normally
+don't store their instance variables in structure members: they
+are stored in an instance dictionary.  This is the key to a
+partial solution.  Suppose we have the following two classes::, start_index:30281}
+{source:pep-0804, id:626b4b29-7a51-5971-a7f4-29fc420f2f87, text:.. _pyOpenSci Python Open Source Package Development Guide: https://www.pyopensci.org/python-package-guide/
+.. _Scikit-HEP packaging guide: https://scikit-hep.org/developer/packaging
+.. _PyPA: https://github.com/pypa
+.. _Reference LAPACK: https://github.com/Reference-LAPACK/lapack, start_index:59866}
+{source:pep-0804, id:0a19bc03-c0d1-593c-a58b-9e074b664258, text:The install commands have the potential to modify the system configuration of the user.
+When available, tools should prefer creating ephemeral, isolated environments for the
+installation of external dependencies. If the ecosystem lacks that feature natively,
+other solutions like containerization may be used. At the very least, informative messaging
+of the impact of the operation should be provided.
+
+How to Teach This
+=================
+
+There are at least four audiences that may need to get familiar with the contents of this PEP:
+
+1. Central registry maintainers, who are responsible for curating the list of
+   well-known DepURLs and mapped ecosystems.
+2. Packaging ecosystem maintainers, who are responsible for keeping the
+   mapping for their ecosystem up-to-date.
+3. Maintainers of Python projects that require external dependencies.
+4. End users of packages that have external dependency metadata.
+
+Central DepURL registry maintainers
+-----------------------------------, start_index:39553}
+{source:pep-0804, id:626b4b29-7a51-5971-a7f4-29fc420f2f87, text:.. _pyOpenSci Python Open Source Package Development Guide: https://www.pyopensci.org/python-package-guide/
+.. _Scikit-HEP packaging guide: https://scikit-hep.org/developer/packaging
+.. _PyPA: https://github.com/pypa
+.. _Reference LAPACK: https://github.com/Reference-LAPACK/lapack, start_index:59866}
+{source:pep-0749, id:5d428d0f-2682-58ff-8242-23b7a9a97409, text:For advanced users who need to introspect annotations, the story becomes more complex.
+The documentation of the new ``annotationlib`` module will serve as a reference for users
+who need to interact programmatically with annotations.
+
+
+Reference Implementation
+========================
+
+The changes proposed in this PEP have been implemented on the main branch
+of the CPython repository.
+
+Acknowledgments
+===============
+
+First of all, I thank Larry Hastings for writing :pep:`649`. This PEP modifies some of his
+initial decisions, but the overall design is still his., start_index:50810}
+{source:pep-3150, id:587bb65c-2583-5f4a-9208-c22413a12c59, text:If they're comfortable with Python's ``lambda`` expressions, then they might
+choose to write it like this::
+
+   sorted_list = sorted(original, key=(lambda v: v.attr1, v.attr2))
+
+That gets the job done, but it hardly reaches the standard of ``executable
+pseudocode`` that fits Python's reputation.
+
+If they don't like ``lambda`` specifically, the ``operator`` module offers an
+alternative that still allows the key function to be defined inline::
+
+   sorted_list = sorted(original,
+                        key=operator.attrgetter(v. 'attr1', 'attr2'))
+
+Again, it gets the job done, but even the most generous of readers would
+not consider that to be "executable pseudocode".
+
+If they think both of the above options are ugly and confusing, or they need
+logic in their key function that can't be expressed as an expression (such
+as catching an exception), then Python currently forces them to reverse the
+order of their original thought and define the sorting criteria first::, start_index:19073}
+{source:pep-3150, id:0cfd3f8b-a4d9-5694-a445-1787faa1cc29, text:The primary motivation is to enable a more declarative style of programming,
+where the operation to be performed is presented to the reader first, and the
+details of the necessary subcalculations are presented in the following
+indented suite. As a key example, this would elevate ordinary assignment
+statements to be on par with ``class`` and ``def`` statements where the name
+of the item to be defined is presented to the reader in advance of the
+details of how the value of that item is calculated. It also allows named
+functions to be used in a "multi-line lambda" fashion, where the name is used
+solely as a placeholder in the current expression and then defined in the
+following suite.
+
+A secondary motivation is to simplify interim calculations in module and
+class level code without polluting the resulting namespaces., start_index:783}
+{source:pep-3150, id:d2245a4d-6d38-53e2-acd0-b79119907464, text:.. [9] `Possible PEP 3150 style guidelines (#2)
+   <https://mail.python.org/pipermail/python-ideas/2011-October/012341.html>`__
+
+* `The "Status quo wins a stalemate" design principle
+  <https://www.curiousefficiency.org/posts/2011/02/status-quo-wins-stalemate.html>`__
+
+* `Multi-line lambdas (again!)
+  <https://mail.python.org/pipermail/python-ideas/2013-August/022526.html>`__
+
+Copyright
+=========
+
+This document has been placed in the public domain., start_index:30157}
+{source:pep-8012, id:435ce97a-9b70-513e-a98c-2c83ba34a346, text:Moderators
+~~~~~~~~~~
+
+There is a group of people, some of which are not core developers,
+responsible for ensuring that discussions on official communication
+channels adhere to the Code of Conduct.  They take action in view of
+violations.
+
+
+Regular decision process
+------------------------
+
+Primary work happens through bug tracker issues and pull requests.
+Core developers should avoid pushing their changes directly to the cpython
+repository, instead relying on pull requests.  Approving a pull
+request by a core developer allows it to be merged without further
+process.
+
+Notifying relevant experts about a bug tracker issue or a pull request
+is important.  Reviews from experts in the given interest area are
+strongly preferred, especially on pull request approvals.  Failure to
+do so might end up with the change being reverted by the relevant
+expert., start_index:9922}
+{source:pep-8012, id:b64f7625-5031-5099-8623-ccd71477b607, text:* possess deep technical understanding of the runtime, the standard library,
+  and the wider third-party library context;
+
+* negotiate and resolve contentious issues in ways acceptable to all
+  parties involved;
+
+* have free time and possess the energy to sustain continuous involvement
+  over periods of years.
+
+Risk: Malevolent Dictator For Life
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What if we got somebody who is not as well suited for the position as
+our first Dictator?  There are possible scenarios in which this could
+lead to severe consequences.
+
+The Dictator could gather insufficient trust due to missing technical
+depth, a "close" election, inconsistent vision, poor ability to deal
+with conflict or burnout, and so on.  Given a controversial decision
+decided by the Dictator in a specific way, a Dictator with
+insufficient trust may cause a split within the project., start_index:1911}
+{source:pep-0570, id:748e90bd-3b20-5dcd-bed0-9e4b07d66f0f, text:Introducing a dedicated syntax to mark positional-only parameters is closely
+analogous to existing keyword-only arguments. Teaching these concepts together
+may *simplify* how to teach the possible function definitions a user may encounter or
+design.
+
+This PEP recommends adding a new subsection to the Python documentation, in the
+section `"More on Defining Functions"`_, where the rest of the argument types
+are discussed. The following paragraphs serve as a draft for these additions.
+They will introduce the notation for both positional-only and
+keyword-only parameters. It is not intended to be exhaustive, nor should it be
+considered the final version to be incorporated into the documentation.
+
+
+.. _"More on Defining Functions": https://docs.python.org/3.7/tutorial/controlflow.html#more-on-defining-functions
+
+-------------------------------------------------------------------------------, start_index:22793}
+{source:pep-0570, id:a5ca54f2-e9b9-5496-8473-ec6bc97f56a0, text:>>> pow(x=5, y=3)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: pow() takes no keyword arguments
+
+``pow()`` expresses that its parameters are positional-only via the
+``/`` marker. However, this is only a documentation convention; Python
+developers cannot use this syntax in code.
+
+There are functions with other interesting semantics:
+
+* ``range()``, an overloaded function, accepts an optional parameter to the
+  *left* of its required parameter. [#RANGE]_
+
+* ``dict()``, whose mapping/iterator parameter is optional and semantically
+  must be positional-only. Any externally visible name for this parameter
+  would occlude that name going into the ``**kwarg`` keyword variadic parameter
+  dict. [#DICT]_, start_index:2702}
+{source:pep-0294, id:1f4571fe-3b9d-57d3-b8e2-380fe29ee3e7, text:In the meantime, it does not make sense to make the proposed updates
+to the modules.  This would cause disruption without any compensating
+benefit.
+
+Instead, the problem that some internal types (frames, functions,
+etc.) don't live anywhere outside those modules may be addressed by
+either adding them to ``__builtin__`` or sys.  This will provide a
+smoother transition to Python 3.0.
+
+
+Rationale
+=========
+
+Using two sets of names for the same objects is redundant and
+confusing.
+
+In Python versions prior to 2.2 the symbols matching many type names
+were taken by the factory functions for those types.  Now all basic
+types have been unified with their factory functions and therefore the
+type names are available to be consistently used to refer to the type
+object., start_index:859}
+{source:pep-0416, id:128cd020-7d38-578c-b596-c083dfccd32a, text:On the other hand, exposing the existing read-only dict proxy as a
+built-in type sounds good to me.  (It would need to be changed to
+allow calling the constructor.)  GvR.
+
+**Update** (2012-04-15): A new ``MappingProxyType`` type was added to the types
+module of Python 3.3.
+
+
+Abstract
+========
+
+Add a new frozendict builtin type.
+
+
+Rationale
+=========
+
+A frozendict is a read-only mapping: a key cannot be added nor removed, and a
+key is always mapped to the same value. However, frozendict values can be not
+hashable. A frozendict is hashable if and only if all values are hashable.
+
+Use cases:, start_index:1228}
+{source:pep-3124, id:4bfe970f-69b9-5ff6-bf01-5f06541ca191, text:from somewhere import Pred  # some predicate implementation
+
+    @discount(
+        price,
+        Pred("isinstance(product,Shoe) and"
+             " product.material.name=='Blue Suede'")
+    )
+    def forty_off_blue_suede_shoes(product):
+        return Decimal('0.4')
+
+The process of defining custom predicate types and dispatching engines
+is also described in more detail under the `Extension API`_ section.
+
+
+Overloading Inside Classes
+--------------------------
+
+All of the decorators above have a special additional behavior when
+they are directly invoked within a class body: the first parameter
+(other than ``__proceed__``, if present) of the decorated function
+will be treated as though it had an annotation equal to the class
+in which it was defined.
+
+That is, this code::
+
+    class And(object):
+        # ...
+        @when(get_conjuncts)
+        def __conjuncts(self):
+            return self.conjuncts, start_index:18672}
+{source:pep-3124, id:fbfbec6f-81f3-5933-84fe-4d00d2102e02, text:Although the examples above have all used concrete or abstract types
+as argument annotations, there is no requirement that the annotations
+be such.  They can also be "interface" objects (discussed in the
+`Interfaces and Adaptation`_ section), including user-defined
+interface types.  (They can also be other objects whose types are
+appropriately registered via  the `Extension API`_.)
+
+
+Proceeding to the "Next" Method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the first parameter of an overloaded function is named
+``__proceed__``, it will be passed a callable representing the next
+most-specific method.  For example, this code::
+
+    def foo(bar:object, baz:object):
+        print "got objects!"
+
+    @overload
+    def foo(__proceed__, bar:int, baz:int):
+        print "got integers!"
+        return __proceed__(bar, baz)
+
+Will print "got integers!" followed by "got objects!"., start_index:9725}
+{source:pep-3124, id:b241dd99-7815-503f-b138-342e1817a143, text:``@before`` and ``@after`` methods are invoked either before or after
+the main function body, and are *never considered ambiguous*.  That
+is, it will not cause any errors to have multiple "before" or "after"
+methods with identical or overlapping signatures.  Ambiguities are
+resolved using the order in which the methods were added to the
+target function.
+
+"Before" methods are invoked most-specific method first, with
+ambiguous methods being executed in the order they were added.  All
+"before" methods are called before any of the function's "primary"
+methods (i.e. normal ``@overload`` methods) are executed.
+
+"After" methods are invoked in the *reverse* order, after all of the
+function's "primary" methods are executed.  That is, they are executed
+least-specific methods first, with ambiguous methods being executed in
+the reverse of the order in which they were added., start_index:13103}
+{source:pep-0279, id:a3ca1fe7-79ad-5b05-982b-b87fc20b176d, text:PEP: 279
+Title: The enumerate() built-in function
+Author: Raymond Hettinger <python@rcn.com>
+Status: Final
+Type: Standards Track
+Created: 30-Jan-2002
+Python-Version: 2.3
+Post-History:
+
+
+Abstract
+========
+
+This PEP introduces a new built-in function, ``enumerate()`` to
+simplify a commonly used looping idiom.  It provides all iterable
+collections with the same advantage that ``iteritems()`` affords to
+dictionaries -- a compact, readable, reliable index notation.
+
+
+Rationale
+=========
+
+Python 2.2 introduced the concept of an iterable interface as
+proposed in :pep:`234`.  The ``iter()`` factory function was provided
+as common calling convention and deep changes were made to use
+iterators as a unifying theme throughout Python.  The unification
+came in the form of establishing a common iterable interface for
+mappings, sequences, and file objects., start_index:0}
+{source:pep-3145, id:e27261e2-9110-5bfd-99fd-aca60768f394, text:Rationale
+=========
+
+There is a documented need for asynchronous, non-blocking functionality in
+``subprocess.Popen`` [6]_ [7]_ [2]_ [3]_.  Inclusion of the code would improve the
+utility of the Python standard library that can be used on Unix based and
+Windows builds of Python.  Practically every I/O object in Python has a
+file-like wrapper of some sort.  Sockets already act as such and for
+strings there is ``StringIO``.  Popen can be made to act like a file by simply
+using the methods attached to the ``subprocess.Popen.stderr``, stdout and
+stdin file-like objects.  But when using the read and write methods of
+those options, you do not have the benefit of asynchronous I/O.  In the
+proposed solution the wrapper wraps the asynchronous methods to mimic a
+file object.
+
+
+Reference Implementation
+========================, start_index:1480}
+{source:pep-0466, id:5dca1290-4cd6-5ee8-8027-bb0faea244da, text:Integration testing
+-------------------
+
+Third party integration testing services should offer users the ability
+to test against multiple Python 2.7 maintenance releases (at least 2.7.6
+and 2.7.7+), to ensure that libraries, frameworks and applications can still
+test their handling of the legacy security infrastructure correctly (either
+failing or degrading gracefully, depending on the security sensitivity of
+the software), even after the features covered in this proposal have been
+backported to the Python 2.7 series.
+
+
+Handling lower security environments with low risk tolerance
+------------------------------------------------------------, start_index:10354}
+{source:pep-0466, id:1156a66b-cce4-558f-8ca6-8ae8dce45af9, text:And that's just three of the highest profile open source projects that
+make heavy use of Python. Given the likely existence of large amounts of
+legacy code that lacks the kind of automated regression test suite needed
+to help support a migration from Python 2 to Python 3, there are likely to
+be many cases where reimplementation (perhaps even in Python 3) proves
+easier than migration. The key point of this PEP is that those situations
+affect more people than just the developers and users of the affected
+application: the existence of clients and servers with outdated network
+security infrastructure becomes something that developers of secure
+networked services need to take into account as part of their security
+design, and that's a problem that inhibits the adoption of better security
+standards., start_index:22139}
+{source:pep-0466, id:104bce7d-c8ee-5b4f-8f29-78edb88bb83c, text:Acknowledgements
+================
+
+Thanks to Christian Heimes and other for their efforts in greatly improving
+Python's SSL support in the Python 3 series, and a variety of members of
+the Python community for helping me to better understand the implications
+of the default settings we provide in our SSL modules, and the impact that
+tolerating the use of SSL infrastructure that was defined in 2010
+(Python 2.7) or even 2008 (Python 2.6) potentially has for the security
+of the web as a whole.
+
+Thanks to Donald Stufft and Alex Gaynor for identifying a more limited set
+of essential security features that allowed the proposal to be made more
+fine-grained than backporting entire modules from Python 3.4 ([7]_, [8]_).
+
+Christian and Donald also provided valuable feedback on a preliminary
+draft of this proposal.
+
+Thanks also to participants in the python-dev mailing list threads
+([1]_, [2]_, [5]_, [6]_), as well as the various folks I discussed this issue with at
+PyCon 2014 in Montreal., start_index:30549}
+{source:pep-0402, id:10f8db04-9d99-56d0-8539-73dabc210249, text:(In practice, this just means that tools will need updating to
+   support virtual packages, e.g. by using ``pkgutil.walk_modules()``
+   instead of using hardcoded filesystem searches.)
+
+2. Code that *expects* certain imports to fail may now do something
+   unexpected.  This should be fairly rare in practice, as most sane,
+   non-test code does not import things that are expected not to
+   exist!
+
+The biggest likely exception to the above would be when a piece of
+code tries to check whether some package is installed by importing
+it.  If this is done *only* by importing a top-level module (i.e., not
+checking for a ``__version__`` or some other attribute), *and* there
+is a directory of the same name as the sought-for package on
+``sys.path`` somewhere, *and* the package is not actually installed,
+then such code could be fooled into thinking a package is installed
+that really isn't.
+
+For example, suppose someone writes a script (``datagen.py``)
+containing the following code::, start_index:14337}
+{source:pep-0514, id:c6eafb5e-bc88-50da-b293-03e11dbd0474, text:HKEY_CURRENT_USER\Software\Python\PythonCore\3.6
+        (Default) = (value not set)
+        DisplayName = "Python 3.6 (64-bit)"
+        SupportUrl = "http://www.python.org/"
+        Version = "3.6.0"
+        SysVersion = "3.6"
+        SysArchitecture = "64bit"
+
+    HKEY_CURRENT_USER\Software\Python\PythonCore\3.6\Help\Main Python Documentation
+        (Default) = "C:\Users\Me\AppData\Local\Programs\Python\Python36\Doc\python360.chm"
+        DisplayName = "Python 3.6.0 Documentation"
+
+    HKEY_CURRENT_USER\Software\Python\PythonCore\3.6\InstallPath
+        (Default) = "C:\Users\Me\AppData\Local\Programs\Python\Python36\"
+        ExecutablePath = "C:\Users\Me\AppData\Local\Programs\Python\Python36\python.exe"
+        WindowedExecutablePath = "C:\Users\Me\AppData\Local\Programs\Python\Python36\pythonw.exe"
+
+References
+==========
+
+.. [1] Registry Redirector (Windows)
+   (https://msdn.microsoft.com/en-us/library/windows/desktop/aa384232.aspx)
+
+Copyright
+=========, start_index:20766}
+{source:pep-0514, id:67aa5986-6b19-5356-9f53-b5923acb5fc7, text:Motivation
+==========
+
+When installed on Windows, the official Python installer creates a registry key
+for discovery and detection by other applications. This allows tools such as
+installers or IDEs to automatically detect and display a user's Python
+installations. For example, the :pep:`397` ``py.exe`` launcher and editors such as
+PyCharm and Visual Studio already make use of this information.
+
+Third-party installers, such as those used by distributions, typically create
+identical keys for the same purpose. Most tools that use the registry to detect
+Python installations only inspect the keys used by the official installer. As a
+result, third-party installations that wish to be discoverable will overwrite
+these values, often causing users to "lose" their original Python installation., start_index:1443}
+{source:pep-3104, id:73a5415a-16e9-59f8-a5fb-42a39e015942, text:These languages use variable declarations to indicate scope.  In
+JavaScript, a lexically scoped variable is declared with the ``var``
+keyword; undeclared variable names are assumed to be global.  In
+Perl, a lexically scoped variable is declared with the ``my``
+keyword; undeclared variable names are assumed to be global.  In
+Scheme, all variables must be declared (with ``define`` or ``let``,
+or as formal parameters).  In Smalltalk, any block can begin by
+declaring a list of local variable names between vertical bars.
+C and C# require type declarations for all variables.  For all these
+cases, the variable belongs to the scope containing the declaration.
+
+Ruby (as of 1.8)
+----------------, start_index:5980}
+{source:pep-0212, id:28b3cace-fccc-51c6-9a2d-67a0eb551eee, text:Motivation
+==========
+
+Standard for-loops in Python iterate over the elements of a
+sequence [1]_.  Often it is desirable to loop over the indices or
+both the elements and the indices instead.
+
+The common idioms used to accomplish this are unintuitive.  This
+PEP proposes two different ways of exposing the indices.
+
+
+Loop counter iteration
+======================
+
+The current idiom for looping over the indices makes use of the
+built-in ``range`` function::
+
+    for i in range(len(sequence)):
+        # work with index i
+
+Looping over both elements and indices can be achieved either by the
+old idiom or by using the new ``zip`` built-in function [2]_::
+
+    for i in range(len(sequence)):
+        e = sequence[i]
+        # work with index i and element e
+
+or::
+
+   for i, e in zip(range(len(sequence)), sequence):
+      # work with index i and element e
+
+
+The Proposed Solutions
+======================, start_index:859}
+{source:pep-3140, id:5c403c3e-ead9-596c-a9f0-1ae2951e9eb8, text:where it actually prints::
+
+    STR
+    REPR
+    [REPR]
+    [REPR]
+
+Especially it is illogical to see that print in Python 2 uses ``str``
+if it is called on what seems to be a tuple::
+
+    >>> print Decimal('42'), datetime.now()
+    42 2008-05-27 20:16:22.534285
+
+where on an actual tuple it prints::
+
+    >>> print((Decimal('42'), datetime.now()))
+    (Decimal("42"), datetime.datetime(2008, 5, 27, 20, 16, 27, 937911))
+
+
+A different approach - call ``str(item)``
+=========================================
+
+For example, with numbers it is often only the value that people
+care about.
+
+::
+
+    >>> print Decimal('3')
+    3
+
+But putting the value in a list forces users to read the type
+information, exactly as if ``repr`` had been called for the benefit of
+a machine::
+
+    >>> print [Decimal('3')]
+    [Decimal("3")]
+
+After this change, the type information would not clutter the ``str``
+output::
+
+    >>> print "%s".format([Decimal('3')])
+    [3]
+    >>> str([Decimal('3')])  # ==
+    [3], start_index:3780}
+{source:pep-0802, id:ae308866-0e48-50a9-90f8-c47aa8961a3e, text:#. Changing ``{}`` to mean an empty set and using ``{:}`` for an empty dictionary
+   (`python-ideas, January 2008`_, `Discourse, March 2023`_)
+#. A Unicode character (e.g. ``∅`` or ``ϕ``)
+   (`python-ideas, April 2021`_)
+#. ``<>``
+   (`python-ideas, November 2010`_, `Discourse, December 2024`_)
+#. ``s{}``
+   (`python-ideas, June 2009`_)
+#. ``{*()}``, perhaps optimising to compile this to the ``BUILD_SET`` opcode
+   (`Discourse, August 2025 (#37)`_)
+#. ``{-}``
+   (`python-ideas, August 2020`_)
+#. ``(/)``
+   (`Discourse, March 2023 (#20)`_)
+#. ``{,}``
+   (`Discourse, August 2025`_)
+#. ``{/}``
+   (`python-ideas, January 2008`_)
+#. ``set()`` (i.e. doing nothing), start_index:2690}
+{source:pep-0463, id:875aa33a-a21a-550c-a12f-1ac3b458b160, text:This actually returns (true, expression()) or (false, default(e)), but I think we can ignore that part.
+
+
+Haskell is actually similar to Lua here (except that it's all done
+with monads, of course)::
+
+    x = do catch(lambda: expression(), lambda e: default(e))
+
+You can write a pattern matching expression within the function to decide
+what to do with it; catching and re-raising exceptions you don't want is
+cheap enough to be idiomatic.
+
+But Haskell infixing makes this nicer::
+
+    x = do expression() `catch` lambda: default()
+    x = do expression() `catch` lambda e: default(e)
+
+And that makes the parallel between the lambda colon and the except
+colon in the proposal much more obvious::
+
+
+    x = expression() except Exception: default()
+    x = expression() except Exception as e: default(e), start_index:22645}
+{source:pep-0505, id:75161edf-ae50-5ca0-89cb-9967ecffa006, text:From ``ctypes/_aix.py``::
+
+    if libpaths is None:
+        libpaths = []
+    else:
+        libpaths = libpaths.split(":")
+
+After updating::
+
+    libpaths = libpaths?.split(":") ?? []
+
+
+From ``os.py``::
+
+    if entry.is_dir():
+        dirs.append(name)
+        if entries is not None:
+            entries.append(entry)
+    else:
+        nondirs.append(name)
+
+After updating to use the ``?.`` operator::
+
+    if entry.is_dir():
+        dirs.append(name)
+        entries?.append(entry)
+    else:
+        nondirs.append(name)
+
+
+From ``importlib/abc.py``::
+
+    def find_module(self, fullname, path):
+        if not hasattr(self, 'find_spec'):
+            return None
+        found = self.find_spec(fullname, path)
+        return found.loader if found is not None else None
+
+After partially updating::
+
+    def find_module(self, fullname, path):
+        if not hasattr(self, 'find_spec'):
+            return None
+        return self.find_spec(fullname, path)?.loader, start_index:11384}
+{source:pep-0830, id:44dcd5b8-3b1f-5326-87da-693c2de7e24c, text:Returning ``None`` rather than ``0`` when no timestamp was collected would be
+slightly more Pythonic, but ``__timestamp_ns__`` is exposed as a plain
+``int64_t`` member descriptor on the C struct.  Supporting ``None`` would
+require a custom getter and boxed storage.  ``0`` is unambiguous.
+
+Using a Coarse Clock
+--------------------
+
+The reference implementation uses ``PyTime_TimeRaw``, which reads the
+standard wall clock at full resolution; benchmarking shows this cost is not
+observable in practice.  A coarse clock such as ``CLOCK_REALTIME_COARSE``
+would be low resolution, insufficient for many needs, for no measurable
+benefit.
+
+
+Open Issues
+===========
+
+Display Location
+----------------, start_index:25189}
+{source:pep-0830, id:ecf4f20b-3a79-5469-b2dc-ec3fc2fa22ca, text:There is also a reading-order argument: when scanning logs for errors,
+people typically search for the exception type, land on the
+``Type: message`` line, and read upward through the frames.  Putting the
+timestamp on that line places it where the eye lands first rather than at
+the top of a block that is often read last.
+
+More Descriptive ``timestamps`` Parameter Name
+----------------------------------------------
+
+Earlier drafts named the ``traceback`` formatting parameter ``no_timestamp``,
+a boolean which read as a double negative.  Longer alternatives such as
+``allow_timestamps`` or ``show_timestamp`` were also considered.  The short
+positive form ``timestamps`` was chosen as a tri-state defaulting to ``None``
+(follow the global configuration), with the docstring and documentation
+covering the exact behavior.
+
+Custom Timestamp Formats
+------------------------, start_index:22628}
+{source:pep-0830, id:23714a9c-21d3-5466-9aef-5c1b962cc481, text:``TracebackException`` and the public formatting functions (``print_exc``,
+``print_exception``, ``format_exception``, ``format_exception_only``) gain a
+``timestamps`` keyword argument (default ``None``):
+
+``None``
+    Follow the global configuration.  Timestamps are shown only when the
+    feature is enabled, using the configured format.
+``False``
+    Never show timestamps, even when the feature is enabled.
+``True``
+    Show any non-zero ``__timestamp_ns__`` regardless of the global
+    configuration, using the configured format if one is set and ``ns``
+    otherwise.
+
+Only non-zero values are ever rendered.  When collection is disabled,
+non-zero values can still arise on instances unpickled from a process where
+collection was enabled, or where ``__timestamp_ns__`` was assigned directly., start_index:7548}
+{source:pep-0207, id:367e94c4-6dac-5b98-9098-c133867a89f4, text:PEP: 207
+Title: Rich Comparisons
+Author: Guido van Rossum <guido@python.org>, David Ascher <DavidA@ActiveState.com>
+Status: Final
+Type: Standards Track
+Created: 25-Jul-2000
+Python-Version: 2.1
+Post-History:
+
+
+Abstract
+========
+
+This PEP proposes several new features for comparisons:
+
+- Allow separately overloading of <, >, <=, >=, ==, !=, both in
+  classes and in C extensions.
+
+- Allow any of those overloaded operators to return something else
+  besides a Boolean result.
+
+
+Motivation
+==========
+
+The main motivation comes from NumPy, whose users agree that A<B
+should return an array of elementwise comparison outcomes; they
+currently have to spell this as less(A,B) because A<B can only
+return a Boolean result or raise an exception.
+
+An additional motivation is that frequently, types don't have a
+natural ordering, but still need to be compared for equality.
+Currently such a type **must** implement comparison and thus define
+an arbitrary ordering, just so that equality can be tested., start_index:0}
+{source:pep-0007, id:53b546cf-f8bd-5db8-ba75-19f33155bad1, text:.. code-block::
+     :class: bad
+
+     /* BAD -- don't do this! */
+     PyDoc_STRVAR(myfunction__doc__,
+     "myfunction(name, value) -> bool\n\n
+     Determine whether name and value make a valid pair.");
+
+  not all do; the MSVC compiler is known to complain about this.
+
+
+Copyright
+=========
+
+This document has been placed in the public domain., start_index:8796}
+{source:pep-0283, id:c5d6acc3-6dcc-5ea9-8ddb-4a041c82cb05, text:- A nicer API to open text files, replacing the ugly (in some
+  people's eyes) "U" mode flag.  There's a proposal out there to
+  have a new built-in type ``textfile(filename, mode, encoding)``.
+  (Shouldn't it have a *bufsize* argument too?)
+
+  Ditto.
+
+- New widgets for Tkinter???
+
+  Has anyone gotten the time for this?  *Are* there any new
+  widgets in Tk 8.4?  Note that we've got better Tix support
+  already (though not on Windows yet).
+
+- Fredrik Lundh's basetime proposal:
+
+  http://effbot.org/ideas/time-type.htm
+
+  I believe this is dead now.
+
+- :pep:`304` (Controlling Generation of Bytecode Files by Montanaro)
+  seems to have lost steam.
+
+- For a class defined inside another class, the ``__name__`` should be
+  ``"outer.inner"``, and pickling should work.  (SF 633930.  I'm no
+  longer certain this is easy or even right.), start_index:7072}
+{source:pep-0526, id:cd9df486-8f82-53c4-b358-63c8659a5076, text:There was preliminary discussion on python-ideas and at
+https://github.com/python/typing/issues/258.
+
+Before you bring up an objection in a public forum please at least
+read the summary of `rejected ideas <PEP 526 rejected_>`_ listed at the end of this PEP.
+
+
+Abstract
+========
+
+:pep:`484` introduced type hints, a.k.a. type annotations.  While its
+main focus was function annotations, it also introduced the notion of
+type comments to annotate variables::
+
+  # 'primes' is a list of integers
+  primes = []  # type: List[int]
+
+  # 'captain' is a string (Note: initial value is a problem)
+  captain = ...  # type: str
+
+  class Starship:
+      # 'stats' is a class variable
+      stats = {}  # type: Dict[str, int]
+
+This PEP aims at adding syntax to Python for annotating the types of variables
+(including class variables and instance variables),
+instead of expressing them through comments::
+
+  primes: List[int] = []
+
+  captain: str  # Note: no initial value!, start_index:934}
+{source:pep-0555, id:e927c1de-dcac-5c62-9f51-961392a40669, text:assi = cvar.assign(new_value)
+    async def apply():
+        assi.__enter__()
+    assert cvar.value == "the default value"
+    await apply()
+    assert cvar.value is new_value
+    assi.__exit__()
+    assert cvar.value == "the default value"
+
+
+Or when the subroutine is a generator::
+
+    def apply():
+        yield
+        assi.__enter__()
+
+
+which is called using ``yield from apply()`` or with calls to ``next`` or ``.send``. This is discussed further in later sections.
+
+Semantics for generators and generator-based coroutines
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Generators, coroutines and async generators act as subroutines in much the same way that normal functions do. However, they have the additional possibility of being suspended by ``yield`` expressions. Assignment contexts entered inside a generator are normally preserved across yields::, start_index:9385}
+{source:pep-0456, id:910c2c7e-796e-5aa6-966c-e16c45f9606f, text:SipHash
+-------
+
+SipHash [sip]_ is a cryptographic pseudo random function with a 128-bit seed
+and 64-bit output. It was designed by Jean-Philippe Aumasson and Daniel J.
+Bernstein as a fast and secure keyed hash algorithm. It's used by Ruby, Perl,
+OpenDNS, Rust, Redis, FreeBSD and more. The C reference implementation has
+been released under CC0 license (public domain).
+
+Quote from SipHash's site:
+
+    SipHash is a family of pseudorandom functions (a.k.a. keyed hash
+    functions) optimized for speed on short messages. Target applications
+    include network traffic authentication and defense against hash-flooding
+    DoS attacks., start_index:5828}
+{source:pep-0655, id:baa64aca-f158-5f52-9710-a409d8bbcb44, text:-  Omittable – too easy to confuse with optional
+-  OptionalItem, OptionalKey – two words; too easy to confuse with
+   optional
+-  MayExist, MissingOk – two words
+-  Droppable – too similar to Rust’s ``Drop``, which means something
+   different
+-  Potential – too vague
+-  Open – sounds like applies to an entire structure rather then to an
+   item
+-  Excludable
+-  Checked
+
+
+References
+==========
+
+.. [1] https://mail.python.org/archives/list/typing-sig@python.org/message/4I3GPIWDUKV6GUCHDMORGUGRE4F4SXGR/
+
+.. [2] https://mail.python.org/archives/list/typing-sig@python.org/message/S2VJSVG6WCIWPBZ54BOJPG56KXVSLZK6/
+
+.. [3] https://bugs.python.org/issue46491
+
+Copyright
+=========
+
+This document is placed in the public domain or under the
+CC0-1.0-Universal license, whichever is more permissive., start_index:19491}
+{source:pep-0655, id:a73a245f-098d-5d4d-8da6-87e68b61d0c1, text:Abstract
+========
+
+:pep:`589` defines notation
+for declaring a TypedDict with all required keys and notation for defining
+a TypedDict with :pep:`all potentially-missing keys <589#totality>`, however it
+does not provide a mechanism to declare some keys as required and others
+as potentially-missing. This PEP introduces two new notations:
+``Required[]``, which can be used on individual items of a
+TypedDict to mark them as required, and
+``NotRequired[]``, which can be used on individual items
+to mark them as potentially-missing.
+
+This PEP makes no Python grammar changes. Correct usage
+of required and potentially-missing keys of TypedDicts is intended to be
+enforced only by static type checkers and need not be enforced by
+Python itself at runtime.
+
+
+Motivation
+==========, start_index:773}
+{source:pep-0742, id:34e3eeea-2e93-5f68-a953-676f00608589, text:The final narrowed type may be narrower than **R**, due to the constraints of the
+argument's previously-known type::
+
+    from collections.abc import Awaitable
+    from typing import Any, TypeIs, assert_type
+    import inspect
+
+    def isawaitable(x: object) -> TypeIs[Awaitable[Any]]:
+        return inspect.isawaitable(x)
+
+    def f(x: Awaitable[int] | int) -> None:
+        if isawaitable(x):
+            # Type checkers may also infer the more precise type
+            # "Awaitable[int] | (int & Awaitable[Any])"
+            assert_type(x, Awaitable[int])
+        else:
+            assert_type(x, int)
+
+It is an error to narrow to a type that is not consistent with the input type::
+
+    from typing import TypeIs
+
+    def is_str(x: int) -> TypeIs[str]:  # Type checker error
+        ...
+
+Subtyping
+---------, start_index:8317}
+{source:pep-0809, id:e23b7dcd-c582-51dc-a18d-3f78996ba3fb, text:No backwards compatibility
+   The new limited API will not be supported by CPython 3.14 and below.
+   Projects that need this support can build separate extensions specifically
+   for the 3.14 free-threaded interpreter, and for older stable ABI versions.
+
+API changes are OK
+   The new Limited API may require extension authors to make significant
+   changes to their code.
+   Projects that cannot do this (yet) can continue using Limited API 3.14,
+   which will yield extensions compatible with GIL-enabled builds only.
+
+No extra configuration
+   We do not introduce new "knobs" that influence what API is available
+   and what the ABI is compatible with.
+
+
+Specification
+=============
+
+Note that much of the specification is identical to :pep:`803`, and readers
+should refer to that proposal for details. The ABI Stability, Build-time Macros
+and Interfaces API sections are unique to this proposal.
+
+ABI Stability
+-------------, start_index:4049}
+{source:pep-0247, id:c12cb4f9-6b30-5906-ac18-5db31f367996, text:Hash function modules define one variable:
+
+| ``digest_size``
+
+   An integer value; the size of the digest produced by the hashing objects
+   created by this module, measured in bytes. You could also obtain this value
+   by creating a sample object and accessing its ``digest_size`` attribute, but
+   it can be convenient to have this value available from the module. Hashes
+   with a variable output size will set this variable to ``None``.
+
+Hashing objects require a single attribute:
+
+| ``digest_size``
+
+   This attribute is identical to the module-level ``digest_size`` variable,
+   measuring the size of the digest produced by the hashing object, measured in
+   bytes.  If the hash has a variable output size, this output size must be
+   chosen when the hashing object is created, and this attribute must contain
+   the selected size.  Therefore, ``None`` is *not* a legal value for this
+   attribute.
+
+
+Hashing objects require the following methods:
+
+| ``copy()``, start_index:1754}
+{source:pep-0396, id:890b9aaf-b37c-5ced-9940-629a27a0ee46, text:An alternative is to only define the version number in ``setup.cfg``
+and use the ``pkgutil`` module [8]_ to make it available
+programmatically.  E.g. in ``elle.py``::
+
+    from distutils2._backport import pkgutil
+    __version__ = pkgutil.get_distribution('elle').metadata['version']
+
+
+PEP 376 metadata
+================
+
+:pep:`376` defines a standard for static metadata, but doesn't
+describe the process by which this metadata gets created.  It is
+highly desirable for the derived version information to be placed into
+the :pep:`376` ``.dist-info`` metadata at build-time rather than
+install-time.  This way, the metadata will be available for
+introspection even when the code is not installed.
+
+
+References
+==========
+
+.. [1] Distutils2 documentation
+   (http://distutils2.notmyidea.org/)
+
+.. [2] The Cheeseshop (Python Package Index)
+   (http://pypi.python.org)
+
+.. [3] http://docs.python.org/distutils/setupscript.html, start_index:10297}

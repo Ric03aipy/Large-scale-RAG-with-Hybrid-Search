@@ -1,17 +1,18 @@
-from enterprise_rag.config import (
-    DEFAULT_RRF_LIMIT,
-    DEFAULT_TOP_K,
-    DEFAULT_PREFETCH_LIMIT,
-    OLLAMA_LLM_NAME,
-    OLLAMA_URL,
-    SYSTEM_PROMPT,
-)
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama
-from enterprise_rag.retriever import CrossEncoderReranker, Retriever
+
+from enterprise_rag.config import (
+    DEFAULT_PREFETCH_LIMIT,
+    DEFAULT_RRF_LIMIT,
+    DEFAULT_TOP_K,
+    OLLAMA_LLM_NAME,
+    OLLAMA_URL,
+    SYSTEM_PROMPT,
+)
 from enterprise_rag.pydantic_models import QueryModeEnum
+from enterprise_rag.retriever import CrossEncoderReranker, Retriever
 
 
 class Interlocutor:
@@ -58,19 +59,21 @@ class Interlocutor:
         top_k = user_input.get("top_k", DEFAULT_TOP_K)
 
         # Information retrieval
-        retriever_res = self.retriever.retrieve(query, user_input['mode'], prefetch_limit, rrf_limit)
+        retriever_res = self.retriever.retrieve(
+            query, user_input["mode"], prefetch_limit, rrf_limit
+        )
 
         # Apply rerank only if required for hybrid retrieval
-        if user_input['mode'] == QueryModeEnum.hybrid_rerank:
+        if user_input["mode"] == QueryModeEnum.hybrid_rerank:
             rerank_res = self.reranker.rerank(query, retriever_res, top_k)
             # Building custom context
             context = [r["text"] for r in rerank_res]
-        else: 
-            context = [point.payload['page_content'] for point in retriever_res.points[:top_k]]
+        else:
+            context = [
+                point.payload["page_content"] for point in retriever_res.points[:top_k]
+            ]
 
         return "\n\n---\n\n".join(context)
-
-
 
     def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)

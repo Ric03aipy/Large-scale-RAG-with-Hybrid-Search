@@ -2,8 +2,9 @@ import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from enterprise_rag.config import ROOT
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+
+from enterprise_rag.config import ROOT
 from enterprise_rag.interlocutor import Interlocutor
 from enterprise_rag.pydantic_models import QueryRequest
 from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder

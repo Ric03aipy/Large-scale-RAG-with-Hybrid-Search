@@ -1,12 +1,16 @@
 import os
-from pathlib import Path
 import uuid
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-MY_APP_NAMESPACE = uuid.UUID('fb2a6f4d-0ee1-4c25-95c9-345a40bfe21f') # best practise for uuid5(namespace); string taken from uuid4() run in terminal
+MY_APP_NAMESPACE = uuid.UUID(
+    "fb2a6f4d-0ee1-4c25-95c9-345a40bfe21f"
+)  # best practise for uuid5(namespace); string taken from uuid4() run in terminal
 
 # Qdrant
-QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")  # it takes the env value when in Docker, if local use localhost
+QDRANT_URL = os.getenv(
+    "QDRANT_URL", "http://localhost:6333"
+)  # it takes the env value when in Docker, if local use localhost
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "peps_eval")
 DENSE_MODEL = "BAAI/bge-small-en-v1.5"
