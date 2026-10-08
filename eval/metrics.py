@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def recall_at_k(ranks:list|pd.Series, k: int) -> tuple[float, int]: 
     """Returns the hit rate, the fraction of questions with rank lower or equal than k."""
     ranks = list(ranks)

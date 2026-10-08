@@ -1,12 +1,12 @@
-from collections import defaultdict
-import random
-from eval.eval_config import SEED, MAX_CHUNKS_PER_FILE, N_CHUNKS_TO_EXPORT, EVAL_FOLDER
-from pathlib import Path
 import json
+import random
+from collections import defaultdict
+from pathlib import Path
 
-from enterprise_rag.config import COLLECTION_NAME, QDRANT_URL
 from qdrant_client import QdrantClient
 
+from enterprise_rag.config import COLLECTION_NAME, QDRANT_URL
+from eval.eval_config import EVAL_FOLDER, MAX_CHUNKS_PER_FILE, N_CHUNKS_TO_EXPORT, SEED
 
 if __name__ == "__main__":
 

@@ -23,7 +23,7 @@ COPY    src/enterprise_rag/__init__.py \
         src/enterprise_rag/ui.py \
         /app/src/enterprise_rag/
 
-# Instaling dependence
+# Installing dependence
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen 
 

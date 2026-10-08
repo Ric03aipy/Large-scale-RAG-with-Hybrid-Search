@@ -1,7 +1,8 @@
-from eval.metrics import recall_at_k, mrr_at_k
-from eval.run_eval import find_rank
 import pandas as pd
 import pytest
+
+from eval.metrics import mrr_at_k, recall_at_k
+from eval.run_eval import find_rank
 
 EPSILON = 10e-3
 

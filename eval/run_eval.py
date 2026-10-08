@@ -1,17 +1,24 @@
 # chiavi queries.jsonl: qid, type[semantick, keyword], query, gold_chunk_id, source, start_idx
 
-import json
-from eval.eval_config import EVAL_FOLDER
-from enterprise_rag.pydantic_models import QueryModeEnum
-from enterprise_rag.config import COLLECTION_NAME, QDRANT_URL
-from qdrant_client import QdrantClient
-from enterprise_rag.retriever import Retriever, CrossEncoderReranker
-from eval.metrics import mrr_at_k, recall_at_k
-from eval.eval_config import TEST_RRF_LIMIT, TEST_PREFETCH_LIMIT, METRIC_FILE, METRIC_RESULT_FILE, LATENCY_RESULT_FILE
-import pandas as pd
-import time
 import argparse
+import json
+import time
 
+import pandas as pd
+from qdrant_client import QdrantClient
+
+from enterprise_rag.config import COLLECTION_NAME, QDRANT_URL
+from enterprise_rag.pydantic_models import QueryModeEnum
+from enterprise_rag.retriever import CrossEncoderReranker, Retriever
+from eval.eval_config import (
+    EVAL_FOLDER,
+    LATENCY_RESULT_FILE,
+    METRIC_FILE,
+    METRIC_RESULT_FILE,
+    TEST_PREFETCH_LIMIT,
+    TEST_RRF_LIMIT,
+)
+from eval.metrics import mrr_at_k, recall_at_k
 
 
 def load_queries(): 

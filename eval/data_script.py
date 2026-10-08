@@ -2,7 +2,7 @@ import random
 import shutil
 from pathlib import Path
 
-from eval.eval_config import DATA_FOLDER, PEPS_FOLDER, EVAL_FOLDER, SEED, N_SAMPLES_DOCS
+from eval.eval_config import DATA_FOLDER, EVAL_FOLDER, N_SAMPLES_DOCS, PEPS_FOLDER, SEED
 
 if __name__ == "__main__":
     # Reproducibility: seed + manifest
