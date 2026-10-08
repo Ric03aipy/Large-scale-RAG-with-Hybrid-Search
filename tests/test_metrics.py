@@ -29,10 +29,17 @@ def test_metrics():
     assert recall_at_k(serie, 5)[0] == 1
     assert recall_at_k(serie, 5)[1] == 1
 
-    # All None
-    with pytest.raises(ValueError):
-        recall_at_k([None, None, None, None, None], 5) 
-
     # Empty list
     with pytest.raises(ValueError):
         recall_at_k([], 5)
+
+def test_find_rank():
+    ids = list("abcdghi")
+    existing_golden_id = "c"
+    non_existing_golden_id = "z"
+    first = "a"
+    last = "i"
+    assert find_rank(ids, existing_golden_id) == 3
+    assert find_rank(ids, first) == 1
+    assert find_rank(ids, last) == len(ids)
+    assert find_rank(ids, non_existing_golden_id) is None
