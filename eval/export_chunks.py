@@ -59,9 +59,12 @@ if __name__ == "__main__":
         # Add a new chunk if either another file is selected or a chunk for a non saturated file 
         if (source in chunks and len(chunks[source]) < MAX_CHUNKS_PER_FILE) or source not in chunks: 
             # Avoid duplicates
+            skip_iter = False
             for el in chunks[source]:
                 if el['id'] == new_record.id: 
-                    continue
+                    skip_iter = True
+            if skip_iter: continue
+            
             chunks[source].append({
                     "id": new_record.id,
                     "text": new_record.payload["page_content"], 

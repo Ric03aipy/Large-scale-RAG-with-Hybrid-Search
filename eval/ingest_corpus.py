@@ -5,8 +5,7 @@ from qdrant_client.models import Document as QDocument
 
 from enterprise_rag.config import COLLECTION_NAME, DENSE_MODEL, QDRANT_URL
 from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
-from eval.data_script import DATA_FOLDER
-from eval.eval_config import TEST_CHUNK_OVERLAP, TEST_CHUNK_SIZE
+from eval.eval_config import TEST_CHUNK_OVERLAP, TEST_CHUNK_SIZE, DATA_FOLDER
 
 
 

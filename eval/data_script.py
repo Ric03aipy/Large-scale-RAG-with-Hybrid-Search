@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     Path.mkdir(DATA_FOLDER, exist_ok=True)  # exist_ok avoids conditional statement
     with Path.open(EVAL_FOLDER / "manifest.txt", "w") as f:
-        for file in random.sample(FILES, N_SAMPLES_DOCS):
+        for file in rng.sample(FILES, N_SAMPLES_DOCS):
             shutil.copy2(file, DATA_FOLDER)
             filename = file.name
             f.write(filename + "\n")
