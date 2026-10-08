@@ -6,6 +6,7 @@ PEPS_FOLDER = ROOT.parent / "peps/peps"
 EVAL_FOLDER = ROOT / "eval"
 METRIC_FILE = EVAL_FOLDER / "raw_metrics.csv"
 METRIC_RESULT_FILE = EVAL_FOLDER / "eval_results.csv"
+LATENCY_RESULT_FILE = EVAL_FOLDER / "latency_results.csv"
 
 
 SEED = 42

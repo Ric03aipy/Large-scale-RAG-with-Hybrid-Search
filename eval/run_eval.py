@@ -7,7 +7,7 @@ from enterprise_rag.config import COLLECTION_NAME, QDRANT_URL
 from qdrant_client import QdrantClient
 from enterprise_rag.retriever import Retriever, CrossEncoderReranker
 from eval.metrics import mrr_at_k, recall_at_k
-from eval.eval_config import TEST_RRF_LIMIT, TEST_PREFETCH_LIMIT, METRIC_FILE, METRIC_RESULT_FILE
+from eval.eval_config import TEST_RRF_LIMIT, TEST_PREFETCH_LIMIT, METRIC_FILE, METRIC_RESULT_FILE, LATENCY_RESULT_FILE
 import pandas as pd
 import time
 import argparse
@@ -81,9 +81,9 @@ def run_retrieval(queries: list[dict], modes:list, retriever:Retriever, reranker
                     query_response, 
                     top_k=TEST_RRF_LIMIT    # this makes comparable the order for hybrid with and without rerank
                 ) # context {"id": str, "text": str, "meta": dict, "score": np.float32}
-                # These two are equals, which means ids are kept invariant, what changes is the order
-                # print(retrieved_ids)
-                # print([el["id"] for el in rerank_res])
+
+                # Ensure ids are the same for hybrid and hybrid + rerank
+                assert set(retrieved_ids) == {el["id"] for el in rerank_res}
                 
                 retrieved_ids = [el["id"] for el in rerank_res]
             end = time.perf_counter()
@@ -107,22 +107,38 @@ def compute_metrics(metric_df:pd.DataFrame):
         
         ranks:pd.Series = group["rank"]
 
-        recall_at_5 = recall_at_k(ranks, 5)
-        recall_at_10 = recall_at_k(ranks, 10)
+        recall_at_5, hits_at_5 = recall_at_k(ranks, 5)
+        recall_at_10, hits_at_10 = recall_at_k(ranks, 10)
         mrr_at_5 = mrr_at_k(ranks, 5)
         mrr_at_10 = mrr_at_k(ranks, 10)
+
 
         metric_res_record = {
             "n_queries": len(ranks),
             "type": typ,
             "mode": mode,
             "recall@5": recall_at_5, 
+            "hits@5": hits_at_5,
+            "hits@10": hits_at_10,
             "recall@10": recall_at_10,
             "mrr@5": mrr_at_5,
             "mrr@10":mrr_at_10
         }
         metric_res.append(metric_res_record)
     return metric_res
+
+
+
+def compute_latency(metric_df:pd.DataFrame):
+    latency_res = []
+    latency_serie = metric_df.groupby("mode")["latency_ms"].quantile([0.5, 0.95])
+    for mode in metric_df["mode"].unique():
+        latency_res.append({
+            "mode": mode, 
+            "p50": latency_serie.loc[(mode, 0.50)],
+            "p95": latency_serie.loc[(mode, 0.95)]
+        })
+    return latency_res
 
 
 if __name__ == "__main__": 
@@ -146,7 +162,7 @@ if __name__ == "__main__":
         # Warm up the system to measure latency without loading
         for mode in modes: 
             query_response = retriever.retrieve("hello world", mode, TEST_PREFETCH_LIMIT, TEST_RRF_LIMIT)
-            if mode == QueryModeEnum.hybrid_rerank: rerank_res = reranker.rerank("hello world", query_response, top_k=TEST_RRF_LIMIT)
+            if mode == QueryModeEnum.hybrid: rerank_res = reranker.rerank("hello world", query_response, top_k=TEST_RRF_LIMIT)
 
         metric_data = run_retrieval(queries, modes, retriever, reranker)
         
@@ -159,5 +175,9 @@ if __name__ == "__main__":
 
     metric_res_df = pd.DataFrame(metric_res)
     metric_res_df.to_csv(METRIC_RESULT_FILE, index=False)
+
+    latency_res = compute_latency(metric_df)
+    latency_df = pd.DataFrame(latency_res)
+    latency_df.to_csv(LATENCY_RESULT_FILE, index=False)
 
 
