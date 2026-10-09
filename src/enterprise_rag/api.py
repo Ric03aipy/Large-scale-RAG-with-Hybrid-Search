@@ -27,7 +27,7 @@ async def lifespan_func(app: FastAPI):
 
 
 # FastAPI app
-app = FastAPI(title="Enterprise capability RAG - API", lifespan=lifespan_func)
+app = FastAPI(title="Local Hybrid-Search RAG - API", lifespan=lifespan_func)
 
 
 # "/" static path or 'Route' - Root

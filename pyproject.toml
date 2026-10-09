@@ -1,7 +1,7 @@
 [project]
 name = "enterprise-rag"
 version = "0.1.0"
-description = "Add your description here"
+description = "Local Hybrid-Search RAG"
 readme = "README.md"
 authors = [
     { name = "Ric03aipy", email = "ribe.studio03@gmail.com" }
