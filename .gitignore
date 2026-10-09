@@ -6,10 +6,10 @@
 .env
 
 # files and folders created by the program
-src/enterprise_rag/__pycache__/
+__pycache__/
 src/enterprise_rag/chroma_db/
 src/enterprise_rag/raw_data/
-src/enterprise_rag/rerank_models/
+src/enterprise_rag/rerank_models/*
 src/enterprise_rag/tmp/
 
 # obsolete files or files for personal testing
@@ -18,6 +18,10 @@ test.py
 src/enterprise_rag/ingestion.py
 src/enterprise_rag/ingestion_script.py
 src/enterprise_rag/main.py
+readme_material/interface.png
+
+# data
+data/
 
 # personal tracking 
 Journal.md

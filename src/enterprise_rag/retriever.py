@@ -1,26 +1,30 @@
+# Qdrant tutorial & Docs: https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/
+
 from typing import Any
 
-from config import (
-    CACHE_DIR,
-    COLLECTION_NAME,
-    CROSS_ENCORDER_MODEL_NAME,
-    DEFAULT_RRF_LIMIT,
-    DEFAULT_TOP_K,
-    DEFUALT_PREFETCH_LIMIT,
-    DENSE_MODEL,
-    QDRANT_URL,
-    SPARSE_MODEL,
-)
 from flashrank import Ranker, RerankRequest
 from qdrant_client import QdrantClient
 from qdrant_client.models import Document as QDocument
 from qdrant_client.models import Fusion, FusionQuery, Prefetch, QueryResponse
 
+from enterprise_rag.config import (
+    CACHE_DIR,
+    COLLECTION_NAME,
+    CROSS_ENCODER_MODEL_NAME,
+    DEFAULT_PREFETCH_LIMIT,
+    DEFAULT_RRF_LIMIT,
+    DEFAULT_TOP_K,
+    DENSE_MODEL,
+    QDRANT_URL,
+    SPARSE_MODEL,
+)
+from enterprise_rag.pydantic_models import QueryModeEnum
+
 
 class CrossEncoderReranker:
     def __init__(self):
         """Initialize the ranker. The cache dir specified is the root. You will find at cache_dir + 'rerank_models'."""
-        self.ranker = Ranker(model_name=CROSS_ENCORDER_MODEL_NAME, cache_dir=CACHE_DIR)
+        self.ranker = Ranker(model_name=CROSS_ENCODER_MODEL_NAME, cache_dir=CACHE_DIR)
 
     def rerank(
         self, query: str, results: QueryResponse, top_k: int = DEFAULT_TOP_K
@@ -55,26 +59,47 @@ class Retriever:
     def retrieve(
         self,
         query: str,
-        prefetch_limit: int = DEFUALT_PREFETCH_LIMIT,
+        mode: QueryModeEnum,
+        prefetch_limit: int = DEFAULT_PREFETCH_LIMIT,
         rrf_limit: int = DEFAULT_RRF_LIMIT,
     ) -> QueryResponse:
         """Retrieve points by cosine similarity with the query."""
-        results = self.client.query_points(
-            collection_name=self.collection_name,
-            prefetch=[
-                Prefetch(
+        match mode:
+            case QueryModeEnum.dense:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.dense_model),
                     using="dense_vector",
-                    limit=prefetch_limit,
-                ),
-                Prefetch(
+                    limit=rrf_limit,  # rrf_limit for coeherent comparison with methods with rrf
+                    with_payload=True,
+                )
+            case QueryModeEnum.sparse:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
                     query=QDocument(text=query, model=self.sparse_model),
                     using="bm25_sparse_vector",
-                    limit=prefetch_limit,
-                ),
-            ],  # score here is COSINE similarity
-            query=FusionQuery(fusion=Fusion.RRF),  # score here is ranking
-            limit=rrf_limit,
-            with_payload=True,
-        )
+                    limit=rrf_limit,
+                    with_payload=True,
+                )
+            case QueryModeEnum.hybrid | QueryModeEnum.hybrid_rerank:
+                results = self.client.query_points(
+                    collection_name=self.collection_name,
+                    prefetch=[
+                        Prefetch(
+                            query=QDocument(text=query, model=self.dense_model),
+                            using="dense_vector",
+                            limit=prefetch_limit,
+                        ),
+                        Prefetch(
+                            query=QDocument(text=query, model=self.sparse_model),
+                            using="bm25_sparse_vector",
+                            limit=prefetch_limit,
+                        ),
+                    ],  # score here is COSINE similarity
+                    query=FusionQuery(fusion=Fusion.RRF),  # score here is ranking
+                    limit=rrf_limit,
+                    with_payload=True,
+                )
+            case _:
+                raise Exception("What has the user done with the drop menu?")
         return results

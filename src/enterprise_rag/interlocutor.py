@@ -1,29 +1,29 @@
-from config import (
-    DEFAULT_RRF_LIMIT,
-    DEFAULT_TOP_K,
-    DEFUALT_PREFETCH_LIMIT,
-    OLLAMA_LLM_NAME,
-    OLLAMA_URL,
-    SYSTEM_PROMPT,
-)
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama
-from retriever import CrossEncoderReranker, Retriever
+
+from enterprise_rag.config import (
+    DEFAULT_PREFETCH_LIMIT,
+    DEFAULT_RRF_LIMIT,
+    DEFAULT_TOP_K,
+    OLLAMA_LLM_NAME,
+    OLLAMA_URL,
+    SYSTEM_PROMPT,
+)
+from enterprise_rag.pydantic_models import QueryModeEnum
+from enterprise_rag.retriever import CrossEncoderReranker, Retriever
 
 
 class Interlocutor:
     """Abstract the logic of generation in RAG."""
 
-    def __init__(self, model_name: str = OLLAMA_LLM_NAME, temperature: float = 0.8):
+    def __init__(self, model_name: str = OLLAMA_LLM_NAME, temperature: float = 0.2):
         """Define through LCEL syntax the RAG retrieval and generation passage."""
 
         # Initialize the retrieval component
         self.retriever = Retriever()
         self.reranker = CrossEncoderReranker()
-
-        print(f"Sto cercando Ollama a questo indirizzo: {OLLAMA_URL}", flush=True)
 
         # Initialize the model
         self.model = ChatOllama(
@@ -52,19 +52,28 @@ class Interlocutor:
     def _get_custom_context(self, user_input: dict) -> str:
         """Bridge between the underlying custom context retrieval and LC context (pure string)."""
 
-        # unpacking user/UI parameters
+        # Unpacking user/UI parameters
         query = user_input["query"]
-        prefetch_limit = user_input.get("prefetch_limit", DEFUALT_PREFETCH_LIMIT)
+        prefetch_limit = user_input.get("prefetch_limit", DEFAULT_PREFETCH_LIMIT)
         rrf_limit = user_input.get("rrf_limit", DEFAULT_RRF_LIMIT)
         top_k = user_input.get("top_k", DEFAULT_TOP_K)
 
-        # information retrieval
-        retriever_res = self.retriever.retrieve(query, prefetch_limit, rrf_limit)
-        rerank_res = self.reranker.rerank(query, retriever_res, top_k)
+        # Information retrieval
+        retriever_res = self.retriever.retrieve(
+            query, user_input["mode"], prefetch_limit, rrf_limit
+        )
 
-        # building custom context
-        context = "\n\n---\n\n".join([r["text"] for r in rerank_res])
-        return context
+        # Apply rerank only if required for hybrid retrieval
+        if user_input["mode"] == QueryModeEnum.hybrid_rerank:
+            rerank_res = self.reranker.rerank(query, retriever_res, top_k)
+            # Building custom context
+            context = [r["text"] for r in rerank_res]
+        else:
+            context = [
+                point.payload["page_content"] for point in retriever_res.points[:top_k]
+            ]
+
+        return "\n\n---\n\n".join(context)
 
     def ask(self, user_input: dict) -> str:
         return self.chain.invoke(user_input)

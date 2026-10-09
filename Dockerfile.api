@@ -14,7 +14,7 @@ ENV UV_LINK_MODE=copy
 # Dendence info (readme is to comply with the .toml)
 COPY pyproject.toml uv.lock README.md ./
 
-# Instaling dependences
+# Installing dependences
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
@@ -35,11 +35,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Expose port for FastAPI (the same specified in the docker compose)
 EXPOSE 8000
 
-# cd like: this allows to use local imports
-WORKDIR /app/src/enterprise_rag
-
 # Run the command to start the server 
-CMD ["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "enterprise_rag.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
 

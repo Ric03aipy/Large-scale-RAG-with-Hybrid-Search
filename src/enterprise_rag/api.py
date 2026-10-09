@@ -2,14 +2,15 @@ import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from config import ROOT
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from interlocutor import Interlocutor
-from pydantic_models import QueryRequest
-from qdrant_ingestion import HybridKnowledgeBuilder
+
+from enterprise_rag.config import ROOT
+from enterprise_rag.interlocutor import Interlocutor
+from enterprise_rag.pydantic_models import QueryRequest
+from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
 
 
-# The lifespan handles the whole cylce of life of the FastAPI app
+# The lifespan handles the whole cycle of life of the FastAPI app
 @asynccontextmanager
 async def lifespan_func(app: FastAPI):
 
@@ -26,7 +27,7 @@ async def lifespan_func(app: FastAPI):
 
 
 # FastAPI app
-app = FastAPI(title="Enterprise capability RAG - API", lifespan=lifespan_func)
+app = FastAPI(title="Local Hybrid-Search RAG - API", lifespan=lifespan_func)
 
 
 # "/" static path or 'Route' - Root
@@ -61,7 +62,7 @@ def ingest(
     except Exception:
         raise HTTPException(
             status_code=500,
-            detail="Something went wrong with ingection. Check connection. Try later.",
+            detail="Something went wrong with ingestion. Check connection. Try later.",
         )
     finally:
         full_path.unlink(missing_ok=True)

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services: 
   ollama: 
     image: ollama/ollama
@@ -7,7 +5,6 @@ services:
       - "11434:11434"
     volumes: 
       - ollama:/root/.ollama
-      - ./entrypoint.sh:/entrypoint.sh # needed to get the file to pull the model
     environment:
       - OLLAMA_LLM_NAME=qwen2.5:1.5b
     # install ollama model
@@ -37,9 +34,10 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - "8000:8000"
-    environment:
+    environment: # no [""] in names, otherwise they are interpreted as characters as well
       - QDRANT_URL=http://qdrant_db:6333 # connect TO
       - OLLAMA_URL=http://ollama:11434 # connect TO 
+      - COLLECTION_NAME=peps_eval
     volumes: 
       - huggingface:/root/.cache/huggingface
     depends_on:
