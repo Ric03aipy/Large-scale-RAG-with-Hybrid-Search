@@ -18,6 +18,7 @@ test.py
 src/enterprise_rag/ingestion.py
 src/enterprise_rag/ingestion_script.py
 src/enterprise_rag/main.py
+readme_material/interface.png
 
 # data
 data/
