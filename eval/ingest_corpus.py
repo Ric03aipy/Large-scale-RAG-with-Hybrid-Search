@@ -8,15 +8,16 @@ from enterprise_rag.qdrant_ingestion import HybridKnowledgeBuilder
 from eval.eval_config import DATA_FOLDER, TEST_CHUNK_OVERLAP, TEST_CHUNK_SIZE
 
 if __name__ == "__main__":
-   
     # Ingest all files
     files = DATA_FOLDER.glob("*.rst")
     files = list(files)
-    
-    # If files is empty we don't want to erase the current collection 
-    if not files: 
-        raise FileNotFoundError(f"{DATA_FOLDER} doesn't contain any '*.rst' file. Please run data_script.py before.")
-   
+
+    # If files is empty we don't want to erase the current collection
+    if not files:
+        raise FileNotFoundError(
+            f"{DATA_FOLDER} doesn't contain any '*.rst' file. Please run data_script.py before."
+        )
+
     # Remove what's old for test
     client = QdrantClient(url=QDRANT_URL)
     if client.collection_exists(COLLECTION_NAME):
@@ -32,7 +33,6 @@ if __name__ == "__main__":
         using="dense_vector",
     )
 
-    
     print("Starting ingestion of knowledge base...")
     num_chunks = 0
     start = time.perf_counter()
@@ -40,5 +40,7 @@ if __name__ == "__main__":
         num_chunks += hkb.ingest(file_path)
     end = time.perf_counter()
     seconds = end - start
-    print(f"Ingestion of {num_chunks} chunks completed in {seconds:.2f} sec - {seconds / 60:.2f} min")
-    print(f"Ingestion speed: {num_chunks / seconds :.2f} chunk/s")
+    print(
+        f"Ingestion of {num_chunks} chunks completed in {seconds:.2f} sec - {seconds / 60:.2f} min"
+    )
+    print(f"Ingestion speed: {num_chunks / seconds:.2f} chunk/s")
